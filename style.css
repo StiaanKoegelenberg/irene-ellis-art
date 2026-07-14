@@ -1,0 +1,67 @@
+/* Brand color palette */
+:root {
+  --color-pink: #eed0c8;
+  --color-tan: #f4efe4;
+  --color-white: #fdfdfd;
+  --color-text: #2c2c2c;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #ffffff;
+  color: #2c2c2c;
+}
+
+/* Hero section */
+#hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px;
+  background-color: var(--color-pink);
+}
+
+#hero h1 {
+  margin: 0 0 8px;
+  color: var(--color-white);
+}
+
+#hero p {
+  margin: 0 0 40px;
+  color: var(--color-white);
+  letter-spacing: 0.05em;
+}
+
+#hero nav {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#hero nav a {
+  display: inline-block;
+  padding: 10px 24px;
+  border: 1px solid var(--color-white);
+  border-radius: 4px;
+  color: var(--color-white);
+  text-decoration: none;
+  background-color: transparent;
+  letter-spacing: 0.04em;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+#hero nav a:hover {
+  background-color: var(--color-white);
+  color: var(--color-text);
+}
