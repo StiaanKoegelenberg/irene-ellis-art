@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin · Irene Ellis Art</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../showcase.css" />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <!-- ===========================================================
+         ADMIN — a simple layout to build on. It shows the fields for
+         editing the site's content, but does NOT save anything yet:
+         wiring up "Save" (a backend, a build/export step, or
+         localStorage) is the next step. -->
+    <!-- LOGIN — shown until you sign in -->
+    <div class="login" data-view="login">
+      <form class="login__card" data-login-form>
+        <h1 class="login__title">Admin</h1>
+        <p class="login__sub">Sign in to manage your content.</p>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" data-email autocomplete="username" required />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <div class="pw-wrap">
+            <input type="password" data-password autocomplete="current-password" required />
+            <button type="button" class="pw-toggle" data-pw-toggle aria-label="Show password">
+              <svg class="pw-icon pw-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z" />
+                <circle cx="12" cy="12" r="3.2" />
+              </svg>
+              <svg class="pw-icon pw-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                <path d="M9.9 5.2A9.9 9.9 0 0 1 12 5c7 0 10.5 7 10.5 7a17 17 0 0 1-3.3 3.9M6.1 6.1A17 17 0 0 0 1.5 12S5 19 12 19a9.7 9.7 0 0 0 4-.8" />
+                <path d="M9.8 9.8a3.2 3.2 0 0 0 4.4 4.4" />
+                <path d="M3 3l18 18" />
+              </svg>
+            </button>
+          </div>
+        </label>
+        <button type="submit" class="btn btn--primary login__btn" data-login-btn>Sign in</button>
+        <p class="login__error" data-login-error hidden></p>
+      </form>
+    </div>
+
+    <!-- EDITOR — hidden until signed in -->
+    <div data-view="editor" hidden>
+      <header class="admin__header">
+        <div>
+          <h1>Admin</h1>
+          <p class="admin__sub">Edit your workshop dates and portfolio albums.</p>
+        </div>
+        <div class="admin__head-actions">
+          <a class="btn btn--link" href="../index.html">View site →</a>
+          <button type="button" class="btn btn--ghost" data-logout>Log out</button>
+        </div>
+      </header>
+
+    <main class="admin">
+      <!-- ================= WORKSHOP DATES ================= -->
+      <section class="panel">
+        <div class="panel__head">
+          <h2>Workshop dates</h2>
+          <button type="button" class="btn" data-add-month>+ Add month</button>
+        </div>
+
+        <div id="months" class="months">
+          <!-- One month card. "+ Add date" / "×" control how many dates
+               the month has. Duplicate this whole card per month. -->
+          <article class="month">
+            <div class="month__top">
+              <label class="field">
+                <span>Month</span>
+                <input type="text" value="July" placeholder="e.g. July" />
+              </label>
+              <button type="button" class="icon-btn" data-remove-month aria-label="Remove this month">×</button>
+            </div>
+
+            <div class="dates">
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="18" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Saturday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="14:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="24" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Sunday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="16:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="17" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Monday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="13:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn--ghost" data-add-date>+ Add date</button>
+          </article>
+
+          <article class="month">
+            <div class="month__top">
+              <label class="field">
+                <span>Month</span>
+                <input type="text" value="August" placeholder="e.g. August" />
+              </label>
+              <button type="button" class="icon-btn" data-remove-month aria-label="Remove this month">×</button>
+            </div>
+
+            <div class="dates">
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="18" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Saturday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="14:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="24" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Sunday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="16:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn--ghost" data-add-date>+ Add date</button>
+          </article>
+
+          <article class="month">
+            <div class="month__top">
+              <label class="field">
+                <span>Month</span>
+                <input type="text" value="September" placeholder="e.g. September" />
+              </label>
+              <button type="button" class="icon-btn" data-remove-month aria-label="Remove this month">×</button>
+            </div>
+
+            <div class="dates">
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="19" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Saturday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="14:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="20" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Sunday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="16:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn--ghost" data-add-date>+ Add date</button>
+          </article>
+
+          <article class="month">
+            <div class="month__top">
+              <label class="field">
+                <span>Month</span>
+                <input type="text" value="October" placeholder="e.g. October" />
+              </label>
+              <button type="button" class="icon-btn" data-remove-month aria-label="Remove this month">×</button>
+            </div>
+
+            <div class="dates">
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="17" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Saturday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="14:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+              <div class="date-row">
+                <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" value="18" /></label>
+                <label class="field"><span>Day</span><select class="weekday" data-day="Sunday"></select></label>
+                <label class="field field--sm"><span>Time</span><input type="time" value="16:00" /></label>
+                <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn--ghost" data-add-date>+ Add date</button>
+          </article>
+        </div>
+
+        <p class="hint">
+          Each “+ Add date” / “×” changes how many dates a month has. Each date
+          holds its number, weekday, and time.
+        </p>
+      </section>
+
+      <!-- ================= WORKSHOP PARTICIPANTS ================= -->
+      <section class="panel">
+        <div class="panel__head"><h2>Workshop participants</h2></div>
+        <p class="hint">
+          A headcount per month, so you can see who’s attending at a glance.
+          Later this will fill in automatically from sign-ups on the website.
+        </p>
+
+        <div class="participants" id="participants">
+          <div class="participant">
+            <span class="participant__month">July</span>
+            <input type="number" class="participant__count" min="0" value="0" aria-label="People attending in July" />
+            <span class="participant__label">people</span>
+          </div>
+          <div class="participant">
+            <span class="participant__month">August</span>
+            <input type="number" class="participant__count" min="0" value="0" aria-label="People attending in August" />
+            <span class="participant__label">people</span>
+          </div>
+          <div class="participant">
+            <span class="participant__month">September</span>
+            <input type="number" class="participant__count" min="0" value="0" aria-label="People attending in September" />
+            <span class="participant__label">people</span>
+          </div>
+          <div class="participant">
+            <span class="participant__month">October</span>
+            <input type="number" class="participant__count" min="0" value="0" aria-label="People attending in October" />
+            <span class="participant__label">people</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PORTFOLIO ================= -->
+      <section class="panel">
+        <div class="panel__head"><h2>Portfolio albums</h2></div>
+        <p class="hint">Choose which pictures are showcased inside each album.</p>
+
+        <div class="albums">
+          <article class="album">
+            <div class="album__head">
+              <h3>Category one</h3>
+              <button type="button" class="btn btn--preview" data-category-open data-category="Category one">Preview</button>
+            </div>
+            <div class="album__grid" data-grid></div>
+            <label class="dropzone">
+              <input type="file" accept="image/*" multiple hidden data-upload />
+              <svg class="dropzone__icon" viewBox="0 0 64 48" aria-hidden="true">
+                <path fill="#6c9cf0" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
+                <path fill="#ffffff" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
+              </svg>
+              <span>Browse file to upload</span>
+            </label>
+          </article>
+
+          <article class="album">
+            <div class="album__head">
+              <h3>Category two</h3>
+              <button type="button" class="btn btn--preview" data-category-open data-category="Category two">Preview</button>
+            </div>
+            <div class="album__grid" data-grid></div>
+            <label class="dropzone">
+              <input type="file" accept="image/*" multiple hidden data-upload />
+              <svg class="dropzone__icon" viewBox="0 0 64 48" aria-hidden="true">
+                <path fill="#6c9cf0" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
+                <path fill="#ffffff" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
+              </svg>
+              <span>Browse file to upload</span>
+            </label>
+          </article>
+
+          <article class="album">
+            <div class="album__head">
+              <h3>Category three</h3>
+              <button type="button" class="btn btn--preview" data-category-open data-category="Category three">Preview</button>
+            </div>
+            <div class="album__grid" data-grid></div>
+            <label class="dropzone">
+              <input type="file" accept="image/*" multiple hidden data-upload />
+              <svg class="dropzone__icon" viewBox="0 0 64 48" aria-hidden="true">
+                <path fill="#6c9cf0" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
+                <path fill="#ffffff" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
+              </svg>
+              <span>Browse file to upload</span>
+            </label>
+          </article>
+        </div>
+      </section>
+
+      <div class="admin__actions">
+        <button type="button" class="btn btn--primary" data-save>Save changes</button>
+        <span class="hint" data-save-status>Saves your workshop dates and participant counts.</span>
+      </div>
+    </main>
+    </div>
+    <!-- /editor view -->
+
+    <!-- CATEGORY SHOWCASE — the exact same dark "display" panel as the public
+         site (shared showcase.css / showcase.js). A category's Preview button
+         opens the matching stage below. -->
+    <div class="showcase" data-showcase hidden>
+      <div class="showcase__backdrop" data-showcase-close></div>
+      <div class="showcase__panel" role="dialog" aria-modal="true" aria-label="Artwork">
+        <div class="showcase__stage" data-stage="Category one" hidden></div>
+        <div class="showcase__stage" data-stage="Category two" hidden></div>
+        <div class="showcase__stage" data-stage="Category three" hidden></div>
+        <button type="button" class="showcase__back" data-showcase-close aria-label="Back">
+          <svg class="showcase__fold" viewBox="0 0 150 150" aria-hidden="true">
+            <polygon points="0,0 150,0 150,150" fill="#eed0c8" />
+            <path d="M0,0 L150,150 C 45,150 3,150 0,0 Z" fill="#3a3532" />
+            <line x1="0" y1="0" x2="150" y2="150" stroke="#26221f" stroke-width="1.5" />
+            <g stroke="#a8465a" stroke-width="8.8" stroke-linecap="round">
+              <line x1="83.4" y1="28.4" x2="118.6" y2="63.6" />
+              <line x1="118.6" y1="28.4" x2="83.4" y2="63.6" />
+            </g>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Templates cloned by admin.js for “+ Add date” / “+ Add month” -->
+    <template id="date-tpl">
+      <div class="date-row">
+        <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" placeholder="1" /></label>
+        <label class="field"><span>Day</span><select class="weekday"></select></label>
+        <label class="field field--sm"><span>Time</span><input type="time" /></label>
+        <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+      </div>
+    </template>
+
+    <template id="month-tpl">
+      <article class="month">
+        <div class="month__top">
+          <label class="field"><span>Month</span><input type="text" placeholder="e.g. November" /></label>
+          <button type="button" class="icon-btn" data-remove-month aria-label="Remove this month">×</button>
+        </div>
+        <div class="dates">
+          <div class="date-row">
+            <label class="field field--sm"><span>Date</span><input type="number" min="1" max="31" placeholder="1" /></label>
+            <label class="field"><span>Day</span><select class="weekday"></select></label>
+            <label class="field field--sm"><span>Time</span><input type="time" /></label>
+            <button type="button" class="icon-btn" data-remove-date aria-label="Remove this date">×</button>
+                <label class="field field--topic"><span>Topic</span><input type="text" class="date-topic" placeholder="What this day's workshop covers" /></label>
+          </div>
+        </div>
+        <button type="button" class="btn btn--ghost" data-add-date>+ Add date</button>
+      </article>
+    </template>
+
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+    <!-- Shared with the public site: same image data + same dark showcase.
+         GALLERY_BASE points the shared data at the images folder from /admin/.
+         gallery-data.js must load before showcase.js. -->
+    <script>
+      window.GALLERY_BASE = "../images/portfolio/";
+    </script>
+    <script src="../gallery-data.js"></script>
+    <script src="../showcase.js"></script>
+  </body>
+</html>

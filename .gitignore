@@ -1,0 +1,16 @@
+# Installers and other big binaries never belong in the site. One of these
+# (a 146MB game launcher) had landed in images/portfolio by accident, and
+# GitHub refuses any file over 100MB.
+*.exe
+*.msi
+*.dmg
+*.zip
+
+# Sketches and screenshots kept in the folder while building
+Screenshot *.png
+
+# OS and editor cruft
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/

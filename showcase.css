@@ -1,0 +1,242 @@
+/* ============================================================
+   CATEGORY SHOWCASE — the dark full-screen "display" panel that
+   holds a category's artwork (a scrollable masonry gallery with the
+   fold-X close). SHARED by the public site (index.html) and the admin
+   preview (admin/index.html) via <link>, so BOTH pages render the
+   exact same panel. Edit it here once and both stay in step.
+   ============================================================ */
+.showcase {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Must out-specify `display:flex` above, or the `hidden` attribute is
+   ignored and this invisible overlay swallows every click on the page. */
+.showcase[hidden] {
+  display: none;
+}
+.showcase__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(44, 44, 44, 0.55);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.showcase[data-state="open"] .showcase__backdrop {
+  opacity: 1;
+}
+/* Paper-white surface. On open, showcase.js measures the clicked source and
+   starts this panel transformed onto it, then releases it to its natural
+   size — so the page appears to grow out of the source. */
+.showcase__panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(24px, 4vh, 48px);
+  width: min(1180px, 92vw);
+  height: min(860px, 88vh);
+  padding: clamp(24px, 4vh, 56px);
+  background: #2a2826;
+  /* other corners keep the slight 3px curve; the top-right is rounded to
+     roughly the curvature of the fold flap's curl (scaled to the smaller fold) */
+  border-radius: 3px 15px 3px 3px;
+  box-shadow: 0 40px 90px -40px rgba(44, 44, 44, 0.7);
+  transform-origin: center center;
+  /* Opening and closing run at the same pace (0.55s). The opacity leg is
+     only used on the way out — showcase.js sets opacity while closing, and
+     clears it (with transitions off) when opening, so there's no fade-in.
+     The delay keeps the panel solid for the first stretch of the return,
+     then fades it out just as it lands back on the source. */
+  transition: transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-radius 0.55s ease, opacity 0.4s ease 0.15s;
+}
+/* The workshop-dates display opens 30% smaller than the portfolio panel
+   (70% of its size). Only affects the panel opened from a workshop button —
+   the data-category is set before the grow animation measures the panel. */
+.showcase[data-category="workshop"] .showcase__panel {
+  /* 75% wider and 10% shorter than the previous workshop size; the flex
+     container (.showcase) keeps it centred at whatever size it is. */
+  width: min(831.16px, 64.8vw);
+  height: min(270.9px, 27.72vh);
+  /* all four corners gently rounded to 12px */
+  border-radius: 12px;
+}
+/* keep the fold-corner button matching the panel's rounded top-right */
+.showcase[data-category="workshop"] .showcase__back {
+  border-top-right-radius: 12px;
+}
+
+/* --- Workshop sign-up fields, shown inside the dark workshop display ---
+   Deep-pink rings, and a fill slightly greyer than the panel so the boxes
+   read against the black without a stark white. Corners reuse the panel's
+   12px curve. (A starting layout — refine from here.) */
+.signup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  /* nudge the fields up by 20% of the display height (they're centred by default) */
+  transform: translateY(-20%);
+}
+.signup__field {
+  flex: 1 1 120px;
+  min-width: 0;
+  font: inherit;
+  color: #f1dfd6; /* light text, readable on the grey fill */
+  padding: 10px 12px;
+  background: #433e3a; /* slightly greyer than the #2a2826 panel */
+  border: 2px solid #e6b8ab; /* deep-pink ring */
+  border-radius: 12px; /* same gentle curve as the panel */
+  /* ease the ring/glow change on focus instead of snapping */
+  transition: border-color 0.35s ease, box-shadow 0.35s ease,
+    background-color 0.35s ease;
+}
+.signup__field::placeholder {
+  color: #c9bdb6;
+}
+/* No spinner arrows on the "Number of attendees" field (still typeable). */
+.signup__field[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.signup__field[type="number"]::-webkit-outer-spin-button,
+.signup__field[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.signup__field:focus {
+  outline: none;
+  border-color: #a8465a;
+  box-shadow: 0 0 0 3px rgba(168, 70, 90, 0.3);
+}
+/* Contents fade in only once the panel has grown, so they aren't
+   visibly squashed while it's still source-shaped */
+.showcase__stage,
+.showcase__back {
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+.showcase[data-state="open"] .showcase__stage,
+.showcase[data-state="open"] .showcase__back {
+  opacity: 1;
+  transition-delay: 0.34s;
+}
+/* The area the artwork occupies. One per category; only the active one shows. */
+.showcase__stage {
+  flex: 1;
+  width: 100%;
+  /* let the stage shrink so the gallery's image is capped to the panel
+     height instead of overflowing it (default min-height:auto would not) */
+  min-height: 0;
+}
+/* Explicit, so `hidden` can never be overridden the way it was on
+   .showcase (which silently covered the page in an invisible overlay) */
+.showcase__stage[hidden] {
+  display: none;
+}
+/* A flat 2D folded-corner button in the top-right: the dark panel's corner
+   folds away to reveal a pink (#eed0c8) triangle with an X. No rim,
+   no hover effect — a plain illustrated fold. */
+.showcase__back {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  /* ~5% larger than the panel padding — tucked in the top-right corner, just
+     kissing the scroll track's edge. */
+  width: clamp(25.2px, 4.2vh, 58.8px);
+  height: clamp(25.2px, 4.2vh, 58.8px);
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  /* match the panel's rounded top-right corner */
+  border-top-right-radius: 15px;
+  overflow: hidden;
+}
+.showcase__fold {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* no outline on mouse/programmatic focus; keep a subtle one for keyboard */
+.showcase__back:focus:not(:focus-visible) {
+  outline: none;
+}
+.showcase__back:focus-visible {
+  outline: 2px solid #eed0c8;
+  outline-offset: 2px;
+}
+
+/* --- Artwork gallery inside the showcase ---
+   A scrollable masonry wall (built by showcase.js): images keep their own
+   aspect ratios and tile into columns, packing with no arrows or thumbnails. */
+.gallery {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.gallery__grid {
+  /* always two columns */
+  column-count: 2;
+  column-gap: 12px;
+}
+.gallery__item {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 12px;
+  border-radius: 6px; /* images keep their soft corners */
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+}
+/* Scrollbar (per the reference): a rounded dark channel with a soft blush
+   thumb inset inside it. Styled via the webkit pseudo-elements only — setting
+   the standard scrollbar-color/​width here made Chrome ignore the button-hide
+   below and draw the up/down arrows. */
+.gallery::-webkit-scrollbar {
+  width: 16px;
+}
+.gallery::-webkit-scrollbar-button {
+  /* no up/down arrows — just the clean pill */
+  display: none;
+  height: 0;
+  width: 0;
+}
+.gallery::-webkit-scrollbar-track {
+  background: #38332f; /* the dark bar */
+  border-radius: 999px; /* curved track ends */
+  margin: 0; /* no vacant space at the top/bottom — track sits tight */
+}
+.gallery::-webkit-scrollbar-thumb {
+  background: #f1dfd6; /* the scroll cursor */
+  border-radius: 999px;
+  /* transparent border reveals the dark track around the thumb, insetting it */
+  border: 4px solid transparent;
+  background-clip: padding-box;
+}
+.gallery::-webkit-scrollbar-thumb:hover {
+  background: #f7ece5;
+  background-clip: padding-box;
+}
+
+/* Stop the page behind from scrolling while the showcase is open */
+body.is-showcase-open {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase {
+    transition: none;
+  }
+}
