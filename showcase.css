@@ -240,3 +240,40 @@ body.is-showcase-open {
     transition: none;
   }
 }
+
+/* Submit, in the bottom-right corner of the dark display. The form itself is
+   nudged up 20% so the fields sit above centre, which would carry the button
+   up with it — pulling it back down by that same 20% lands it on the panel's
+   bottom edge, where the eye expects it. */
+.signup__submit {
+  position: absolute;
+  right: 0;
+  bottom: -20%;
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #2a2826; /* the panel's own dark, so the pink reads as the lit surface */
+  padding: 10px 26px;
+  background: #eed0c8; /* brand pink */
+  border: none;
+  border-radius: 12px; /* the panel's curve */
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.3s ease;
+}
+.signup__submit:hover {
+  background: #f1dfd6; /* lifts toward the lighter blush */
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.6);
+}
+.signup__submit:active {
+  transform: translateY(1px);
+}
+.signup__submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(168, 70, 90, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .signup__submit {
+    transition: none;
+  }
+}

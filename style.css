@@ -1250,6 +1250,23 @@ body.is-showcase-open {
 .stack-strip__bg {
   bottom: 0;
 }
+/* The copied eyebrow + title, held together so they can shrink as one. On a
+   narrow screen each title docks — shrinks into the top of its slot — as its
+   strip sticks, because three full-size script titles would otherwise take
+   nearly two thirds of a phone screen. The eyebrow goes with it. */
+.stack-strip__title {
+  transition: transform 0.28s ease;
+}
+.stack-strip.is-docked .stack-strip__title {
+  transform: var(--dock);
+}
+.stack-strip .section-eyebrow {
+  transition: opacity 0.2s ease;
+}
+.stack-strip.is-docked .section-eyebrow {
+  opacity: 0;
+}
+
 /* Holds the copies that hang below their strip (Portfolio's card stacks).
    stack.js sets its height every frame to end exactly at the next part's top
    border, and the overflow cuts them there — so the artwork sticks out only

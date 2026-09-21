@@ -2,7 +2,10 @@
 // another like pages being laid onto a pile, each leaving its title strip
 // visible in a band at the top of the screen. (Hero + About scroll normally.)
 //
-// NOTHING is ever scaled — every page keeps its full, natural size. Per part:
+// NO PAGE is ever scaled — every one keeps its full, natural size. (On a
+// narrow screen the copied TITLES shrink as they dock, because three
+// full-size script titles would take most of a phone screen. The pages
+// themselves never do.) Per part:
 //   1. It scrolls normally.
 //   2. When its title strip (top border + eyebrow + script title) reaches its
 //      slot in the band, a copy of that strip sticks there and the rest of the
@@ -19,17 +22,22 @@
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   var PAD = 14; // space kept below each title inside its strip
-  var MIN_WIDTH = 900; // narrower screens get the normal scrolling page
+  var MIN_WIDTH = 360; // below this there is no room for the effect at all
+  // A phone cannot give 60% of its screen to three full-size script titles.
+  // Below this width the titles DOCK instead: each shrinks into its slot as it
+  // catches, bringing the band to about a quarter of the screen. Wider screens
+  // keep the titles at full size, and the card tops that ride with them.
+  var NARROW = 900;
+  var DOCK = 0.55; // a docked title's size, next to the section's own
+  var DOCK_GAP = 10; // space above a docked title inside its slot
   var MIN_ROOM = 150; // px the full band must leave free, or it's disabled
+  var TOOLBAR = 140; // a height change up to this is a phone's address bar
   // Depth: every part stacked ON TOP of a strip washes its title a little
   // further toward its own background, the way distance pales a thing in the
   // open air. Its border is left crisp, so the seams stay sharp.
   var FADE_STEP = 0.09;
   var FADE_MAX = 0.2;
   var IDS = ["workshop-dates", "portfolio", "contact"];
-  // Parts that keep more than their title in the band. Portfolio's card
-  // stacks ride along at full size and hang out past the band, so the
-  // artwork never disappears once Get In Touch slides over it.
   // Content that rides in the band with its title, at full size, cut off
   // where the next part's top border is — so its top stays in view while the
   // rest tucks under the section that covers it.
@@ -138,7 +146,10 @@
   }
 
   var enabled = false;
+  var compact = false; // narrow screen: titles dock, nothing else rides along
   var VH = 0;
+  var measuredW = 0; // the screen this layout was measured against
+  var measuredH = 0;
   var mainEnd = 0;
 
   function teardown() {
@@ -163,16 +174,25 @@
   function measure() {
     teardown(); // sticky off, so everything below reads its natural layout
     VH = window.innerHeight;
+    measuredW = window.innerWidth;
+    measuredH = VH;
 
     // Pass 1 — how tall is each band? Its own title block decides that.
+    compact = window.innerWidth < NARROW;
     var C = 0; // running band height = the slot where the next strip sticks
     parts.forEach(function (p) {
       p.T = docTop(p.page);
+      var h2 = p.titles[p.titles.length - 1]; // the script title, under the eyebrow
+      p.titleTop = docTop(h2) - p.T;
       var bot = -Infinity;
       p.titles.forEach(function (t) {
         bot = Math.max(bot, docTop(t) + t.offsetHeight);
       });
-      p.S = bot - p.T + PAD; // strip runs from the section's top edge
+      // Docked, a slot holds only the shrunken title. At full size it holds the
+      // whole title block, laid out exactly as the section draws it.
+      p.S = compact
+        ? DOCK_GAP + h2.offsetHeight * DOCK + PAD
+        : bot - p.T + PAD; // strip runs from the section's top edge
       C += p.S;
     });
 
@@ -225,15 +245,32 @@
         strip.appendChild(edge);
       }
 
-      // Copies of the real eyebrow + title, laid exactly over the originals.
+      // Copies of the real eyebrow + title, in a box that shrinks as one when
+      // the title docks. Its origin is the title's own top-left, so a docked
+      // title lands in the top of its slot rather than drifting off it.
+      var h2 = p.titles[p.titles.length - 1];
+      var boxLeft = docLeft(h2) - mainLeft;
+      var titleBox = document.createElement("div");
+      titleBox.className = "stack-strip__title";
+      titleBox.style.cssText = "position:absolute;transform-origin:left top";
+      titleBox.style.left = boxLeft + "px";
+      titleBox.style.top = p.titleTop + "px";
+      face.appendChild(titleBox);
       p.clones = p.titles.map(function (t) {
-        return place(t, face, p, mainLeft, false);
+        var c = place(t, titleBox, p, mainLeft, false);
+        c.style.left = docLeft(t) - mainLeft - boxLeft + "px";
+        c.style.top = docTop(t) - p.T - p.titleTop + "px";
+        return c;
       });
+      strip.style.setProperty(
+        "--dock",
+        "translateY(" + (DOCK_GAP - p.titleTop) + "px) scale(" + DOCK + ")"
+      );
       // Anything else that rides in the band — Portfolio's card stacks. They
       // keep their full size and hang below the strip, but only as far as the
       // next part's top border: this layer is cut off exactly there each
       // frame, so they tuck UNDER Get In Touch instead of floating over it.
-      if (p.extras.length) {
+      if (!compact && p.extras.length) {
         p.hang = document.createElement("div");
         p.hang.className = "stack-strip__hang";
         p.hang.style.cssText =
@@ -286,7 +323,7 @@
       // The copies are what you see and click. The originals stay in the page
       // — and in the tab order — but take no clicks, so a click can never land
       // on the hidden original instead of the copy you are looking at.
-      p.extras.forEach(function (el) {
+      (compact ? [] : p.extras).forEach(function (el) {
         el.style.opacity = "0";
         el.style.pointerEvents = "none";
       });
@@ -330,6 +367,8 @@
       p.bg.style.opacity = alpha;
       // it only blocks clicks once solid (what is under it is hidden by then)
       p.strip.style.pointerEvents = alpha ? "auto" : "none";
+      // on a narrow screen the title shrinks into its slot as it sticks
+      if (compact) p.strip.classList.toggle("is-docked", p.caught);
       // the card stacks show only down to the next part's top border, so they
       // slide under it as it rises rather than being drawn across it
       if (p.hang) {
@@ -371,7 +410,7 @@
   function showcaseOpen() {
     return document.body.classList.contains("is-showcase-open");
   }
-  function remeasure() {
+  function remeasure(force) {
     if (measuring) return;
     measuring = true;
     requestAnimationFrame(function () {
@@ -386,6 +425,21 @@
         return;
       }
       pending = false;
+      // The screen is the same width and only a little shorter or taller: that
+      // is a phone's address bar sliding away mid-scroll, not a new layout.
+      // Re-pin rather than rebuild, which would jump the whole stack under the
+      // reader's thumb. The check lives here, not on the resize event, because
+      // the address bar also reaches us through the ResizeObserver — the hero
+      // is sized to the screen, so main changes height with it.
+      if (
+        !force &&
+        enabled &&
+        window.innerWidth === measuredW &&
+        Math.abs(window.innerHeight - measuredH) < TOOLBAR
+      ) {
+        rescale();
+        return;
+      }
       measure();
     });
   }
@@ -394,18 +448,42 @@
       if (pending && !showcaseOpen()) remeasure();
     }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
   }
-  window.addEventListener("resize", remeasure);
-  window.addEventListener("load", remeasure);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+  // Re-pin everything to a new screen height without rebuilding a thing.
+  function rescale() {
+    VH = window.innerHeight;
+    parts.forEach(function (p) {
+      p.P = Math.min(p.C, VH - p.H);
+      p.page.style.setProperty("--stick", p.P + "px");
+    });
+    update();
+  }
+  window.addEventListener("resize", function () {
+    remeasure();
+  });
+  // Fonts and late images really do change the layout, so these rebuild.
+  window.addEventListener("load", function () {
+    remeasure(true);
+  });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () {
+      remeasure(true);
+    });
+  }
   if ("ResizeObserver" in window) {
-    var ro = new ResizeObserver(remeasure);
+    var ro = new ResizeObserver(function () {
+      remeasure();
+    });
     ro.observe(main); // content above the stack growing shifts every part down
     parts.forEach(function (p) {
       ro.observe(p.page);
     });
   }
-  setTimeout(remeasure, 400);
-  setTimeout(remeasure, 1200);
+  setTimeout(function () {
+    remeasure(true);
+  }, 400);
+  setTimeout(function () {
+    remeasure(true);
+  }, 1200);
 
   measure();
 })();

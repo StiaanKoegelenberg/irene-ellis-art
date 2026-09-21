@@ -3208,6 +3208,10 @@
             <input class="signup__field" type="text" placeholder="Surname" aria-label="Surname" />
             <input class="signup__field" type="tel" placeholder="Cellphone number" aria-label="Cellphone number" />
             <input class="signup__field" type="number" min="1" placeholder="Number of attendees" aria-label="Number of attendees" />
+            <!-- Will send the sign-up to the database. Until that is wired it
+                 does nothing, so it is a plain button: a real submit would
+                 reload the page and lose what was typed. -->
+            <button type="button" class="signup__submit">Submit</button>
           </form>
         </div>
         <button
