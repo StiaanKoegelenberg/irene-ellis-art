@@ -277,3 +277,24 @@ body.is-showcase-open {
     transition: none;
   }
 }
+
+/* The reply to a sign-up — sits bottom-left, opposite Submit, and is pulled
+   down by the same 20% the form is nudged up so the two line up. Absolute, so
+   a long message can never push the fields around. */
+.signup__status {
+  position: absolute;
+  left: 0;
+  bottom: -20%;
+  max-width: 58%;
+  margin: 0;
+  padding: 10px 0; /* matches the button's padding, so they sit level */
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #c9bdb6; /* quiet grey while it is only saying "Sending…" */
+}
+.signup__status--ok {
+  color: #eed0c8; /* brand pink: it worked */
+}
+.signup__status--error {
+  color: #e79aa8; /* a lightened rose-red — the close-X colour is too dark here */
+}

@@ -236,6 +236,21 @@
         </div>
       </section>
 
+      <!-- ================= WORKSHOP SIGN-UPS ================= -->
+      <section class="panel">
+        <div class="panel__head">
+          <h2>Workshop sign-ups</h2>
+          <button type="button" class="btn" data-signups-refresh>Refresh</button>
+        </div>
+        <p class="hint">
+          Everyone who has signed up through the website, newest first. Only you
+          can see this — it holds people's names and phone numbers, so keep it to
+          yourself and don't paste it anywhere public.
+        </p>
+        <p class="signups__status" data-signups-status></p>
+        <div data-signups></div>
+      </section>
+
       <!-- ================= PORTFOLIO ================= -->
       <section class="panel">
         <div class="panel__head"><h2>Portfolio albums</h2></div>
@@ -353,7 +368,8 @@
       </article>
     </template>
 
-    <script src="config.js"></script>
+    <!-- shared with the public site, so the connection lives in ONE place -->
+    <script src="../config.js"></script>
     <script src="admin.js"></script>
     <!-- Shared with the public site: same image data + same dark showcase.
          GALLERY_BASE points the shared data at the images folder from /admin/.

@@ -517,3 +517,77 @@ body {
 .pw-wrap input::-ms-clear {
   display: none;
 }
+
+/* --- Workshop sign-ups ---------------------------------------------------
+   A plain, readable table: this is a working list Irene reads down, not a
+   thing to decorate. Heads-per-month sit above it, since that is the number
+   the participants panel asks her to keep. */
+.signups__status {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  color: var(--muted, #b9aea6);
+}
+.signups__totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 16px;
+}
+.signups__total {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 0.95rem;
+}
+.signups__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.signups__table th,
+.signups__table td {
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+.signups__table th {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+.signups__topic {
+  opacity: 0.65;
+  font-size: 0.86rem;
+}
+@media (max-width: 820px) {
+  /* A phone can't show five columns, so each sign-up becomes a stacked card
+     with its column name in front of the value. */
+  .signups__table,
+  .signups__table tbody,
+  .signups__table tr,
+  .signups__table td {
+    display: block;
+    width: 100%;
+  }
+  .signups__table thead {
+    display: none;
+  }
+  .signups__table tr {
+    margin-bottom: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 6px 4px;
+  }
+  .signups__table td {
+    border: none;
+    padding: 6px 12px;
+  }
+  .signups__table td::before {
+    content: attr(data-label) " ";
+    opacity: 0.6;
+    font-size: 0.8rem;
+  }
+}
