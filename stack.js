@@ -363,7 +363,12 @@
       // changes nothing on screen. Fading it in instead left the band
       // see-through for a moment, and the next section's top border could be
       // seen sliding through the band and across whatever it holds.
-      var alpha = p.caught ? 1 : 0;
+      //
+      // The LAST strip is the exception: nothing ever stacks on top of it, so
+      // it has nothing to hide — and a solid background there would cover its
+      // own section's sky, taking every drifting dandelion with it. Its border
+      // and title still show; only the fill is dropped.
+      var alpha = p.caught && next ? 1 : 0;
       p.bg.style.opacity = alpha;
       // it only blocks clicks once solid (what is under it is hidden by then)
       p.strip.style.pointerEvents = alpha ? "auto" : "none";
@@ -459,6 +464,12 @@
   }
   window.addEventListener("resize", function () {
     remeasure();
+  });
+  // The workshop dates arrive from the database after load and replace the
+  // months wholesale. That changes the section's height and everything the
+  // band copies out of it, so it needs a full rebuild, not a re-pin.
+  document.addEventListener("content:updated", function () {
+    remeasure(true);
   });
   // Fonts and late images really do change the layout, so these rebuild.
   window.addEventListener("load", function () {

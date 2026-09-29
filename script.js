@@ -135,6 +135,11 @@
   targets.forEach(function (el) {
     observer.observe(el);
   });
+
+  // Content drawn after load (the workshop dates, once they come from the
+  // database) has to be handed to the same observer, or it sits at opacity 0
+  // forever waiting for a reveal that never comes.
+  window.IEA_REVEAL = observer;
 })();
 
 // Portfolio fanned cards — fill each category's stack with its images. The

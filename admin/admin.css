@@ -9,7 +9,13 @@
   --muted: #6f6a66;
   --line: rgba(70, 62, 58, 0.16);
   --card: #ffffff;
-  --bg: #2a2826; /* the portfolio showcase's dark "display" colour */
+  /* Three surfaces, each a clear step from the last, so the structure reads:
+     the page sits back, a panel lifts off it, a card sits inside the panel.
+     (This replaced a near-black page behind cream panels — the loudest
+     contrast on the screen was the one carrying the least information.) */
+  --bg: #2a2826; /* the page: the portfolio showcase's dark "display" colour */
+  --surface: #fffdfc; /* a panel */
+  --surface-2: #f7f1ed; /* a card inside a panel */
   --accent: #a8465a;
 }
 
@@ -41,8 +47,30 @@ body {
   gap: 16px;
   flex-wrap: wrap;
   padding: 24px clamp(16px, 5vw, 48px);
-  background: var(--blush);
-  border-bottom: 1px solid var(--line);
+  /* the same rose-red as the Save changes button */
+  background: var(--accent);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+/* Everything in the header sits on that deep rose now, so it all has to be
+   light. The "View site" link especially: it was the accent colour itself,
+   which would leave it invisible against its own background. */
+.admin__header h1,
+.admin__header .admin__sub,
+.admin__header .btn--link {
+  color: #fff;
+}
+.admin__header .admin__sub {
+  color: rgba(255, 255, 255, 0.88);
+}
+.admin__header .btn--ghost {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+.admin__header .btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #fff;
+  color: #fff;
 }
 .admin__header h1 {
   margin: 0;
@@ -67,7 +95,7 @@ body {
 }
 
 .panel {
-  background: var(--tan);
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: clamp(16px, 3vw, 28px);
@@ -146,7 +174,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px;
-  background: #fffdfc; /* same near-white as the portfolio album cards */
+  background: var(--surface-2);
 }
 /* The remove-month "×" sits in the card's top-right corner, not beside the name. */
 .month [data-remove-month] {
@@ -401,18 +429,18 @@ body {
   justify-content: center;
   gap: 8px;
   padding: 26px 16px;
-  border: 2px dashed #b9c6da;
+  border: 2px dashed var(--rose);
   border-radius: 12px;
-  background: #f6f9fd;
-  color: #6c86b0;
+  background: var(--surface-2);
+  color: var(--muted);
   text-align: center;
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 .dropzone:hover,
 .dropzone.is-drag {
-  background: #eef4fd;
-  border-color: #6c9cf0;
+  background: var(--blush);
+  border-color: var(--accent);
 }
 .dropzone__icon {
   width: 46px;
@@ -431,7 +459,9 @@ body {
 }
 .admin__actions .hint {
   margin: 0;
-  color: #cdc6c0; /* muted, but light enough to read on the dark background */
+  /* this line sits on the dark page itself, not inside a panel, so it needs
+     the light muted tone rather than the dark one used inside panels */
+  color: #cdc6c0;
 }
 
 /* --- Login screen --- */
@@ -536,7 +566,7 @@ body {
 .signups__total {
   padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-2);
   font-size: 0.95rem;
 }
 .signups__table {
@@ -549,7 +579,7 @@ body {
   padding: 10px 12px;
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid var(--line);
 }
 .signups__table th {
   font-weight: 600;
@@ -577,7 +607,7 @@ body {
   }
   .signups__table tr {
     margin-bottom: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--line);
     border-radius: 10px;
     padding: 6px 4px;
   }
@@ -590,4 +620,137 @@ body {
     opacity: 0.6;
     font-size: 0.8rem;
   }
+}
+
+/* --- Workshop participants: the roll of months and their dates ------------
+   A column per month, its dates as small square buttons beneath. Clicking a
+   date opens a short, scrollable list of who is coming that day. */
+.roll {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 34px;
+}
+.roll__status {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.roll__month {
+  min-width: 190px;
+}
+.roll__name {
+  margin: 0 0 12px;
+  padding-bottom: 6px;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  /* the underline from the sketch */
+  border-bottom: 2px solid var(--line);
+}
+.roll__dates {
+  display: grid;
+  grid-template-columns: repeat(4, 44px);
+  gap: 10px;
+}
+.roll__cell {
+  position: relative; /* the drop-down hangs off this */
+}
+.roll__date {
+  position: relative;
+  width: 44px;
+  height: 40px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 2px solid var(--line); /* the same weight of line as the rest of the page */
+  border-radius: 10px; /* the rounded squares in the sketch */
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.12s ease;
+}
+.roll__date:hover {
+  background: var(--pink);
+}
+.roll__date[aria-expanded="true"] {
+  background: var(--rose);
+}
+/* A date somebody has booked wears its headcount */
+.roll__date--has {
+  background: var(--pink);
+}
+.roll__count {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.72rem;
+  line-height: 18px;
+  font-weight: 700;
+}
+.roll__total {
+  margin: 12px 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+/* The drop-down: deliberately small, and scrolls rather than growing, so a
+   busy day cannot push the months below it off the screen. */
+.roll__pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 5;
+  width: 260px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 34px -18px rgba(70, 62, 58, 0.5);
+  overflow: hidden;
+}
+.roll__pop-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+}
+.roll__when {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.roll__list {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 172px; /* about five names, then it scrolls */
+  overflow-y: auto;
+}
+.roll__person {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+}
+.roll__person:nth-child(odd) {
+  background: var(--surface-2);
+}
+.roll__phone {
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.roll__empty {
+  padding: 10px 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }

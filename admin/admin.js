@@ -426,6 +426,12 @@
       return null;
     }
   }
+  // One fetch serves two panels: this list, and the per-date participants roll
+  // below it. The rows are handed over rather than fetched twice.
+  function publish(rows) {
+    window.IEA_SIGNUPS = rows;
+    document.dispatchEvent(new CustomEvent("signups:loaded"));
+  }
   function setStatus(msg, isError) {
     if (!statusEl) return;
     statusEl.textContent = msg || "";
@@ -523,6 +529,7 @@
       .then(function (rows) {
         setStatus("");
         render(rows || []);
+        publish(rows || []);
       })
       .catch(function (err) {
         var msg = String(err.message || err);
@@ -532,6 +539,7 @@
         } else {
           setStatus("Couldn’t load sign-ups: " + msg, true);
         }
+        publish([]); // still draw the months, with zero counts
       })
       .finally(function () {
         loading = false;
@@ -547,4 +555,193 @@
     }).observe(editorView, { attributes: true, attributeFilter: ["hidden"] });
   }
   if (editorView && !editorView.hidden) load();
+})();
+
+// --- Workshop participants: a roll of every month and its dates ------------
+// Each month you have set up appears with its dates as buttons. Clicking one
+// opens a small list: how many people are coming that day, and who they are.
+//
+// The months and dates come from the editor above — whatever is on screen
+// right now, saved or not — so adding a date makes its button appear at once.
+// The names come from the sign-ups table, matched to a date by month name and
+// day number. (Deliberately not by weekday or time: if Irene moves a workshop
+// from 14:00 to 15:00 after someone books, that person must not vanish.)
+(function () {
+  var roll = document.querySelector("[data-participants]");
+  var statusEl = document.querySelector("[data-participants-status]");
+  var monthsWrap = document.querySelector("#months");
+  if (!roll) return;
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  // What the editor currently holds: months, each with its dates.
+  function readEditor() {
+    var out = [];
+    if (!monthsWrap) return out;
+    monthsWrap.querySelectorAll(".month").forEach(function (m) {
+      var nameEl = m.querySelector(".month__top input");
+      var name = nameEl ? nameEl.value.trim() : "";
+      var dates = [];
+      m.querySelectorAll(".date-row").forEach(function (row) {
+        var num = (row.querySelector('input[type="number"]') || {}).value || "";
+        if (!String(num).trim()) return; // a half-filled new row
+        dates.push({
+          day: String(num).trim(),
+          weekday: (row.querySelector("select.weekday") || {}).value || "",
+          time: (row.querySelector('input[type="time"]') || {}).value || "",
+          topic: (row.querySelector(".date-topic") || {}).value || "",
+        });
+      });
+      if (name || dates.length) out.push({ name: name || "Untitled month", dates: dates });
+    });
+    return out;
+  }
+
+  function signupsFor(monthName, day) {
+    var rows = window.IEA_SIGNUPS || [];
+    var m = String(monthName).trim().toLowerCase();
+    return rows.filter(function (r) {
+      if (String(r.workshop_month || "").trim().toLowerCase() !== m) return false;
+      return parseInt(r.workshop_date, 10) === parseInt(day, 10);
+    });
+  }
+
+  function heads(list) {
+    return list.reduce(function (n, r) {
+      return n + (Number(r.attendees) || 1);
+    }, 0);
+  }
+
+  function render() {
+    var months = readEditor();
+    if (!months.length) {
+      roll.innerHTML = '<p class="hint">Add a month above and its dates will appear here.</p>';
+      return;
+    }
+    roll.innerHTML = months
+      .map(function (mo) {
+        var dates = mo.dates
+          .map(function (d) {
+            var list = signupsFor(mo.name, d.day);
+            var n = heads(list);
+            var names = list.length
+              ? list
+                  .map(function (r) {
+                    var who = ((r.name || "") + " " + (r.surname || "")).trim() || "No name given";
+                    var extra = (Number(r.attendees) || 1) > 1 ? " +" + ((Number(r.attendees) || 1) - 1) : "";
+                    return (
+                      '<li class="roll__person"><span>' +
+                      esc(who) +
+                      esc(extra) +
+                      '</span><span class="roll__phone">' +
+                      esc(r.phone) +
+                      "</span></li>"
+                    );
+                  })
+                  .join("")
+              : '<li class="roll__empty">Nobody has signed up for this day yet.</li>';
+            var when = [d.weekday, d.time].filter(Boolean).join(" ");
+            return (
+              '<div class="roll__cell">' +
+              '<button type="button" class="roll__date' +
+              (n ? " roll__date--has" : "") +
+              '" aria-expanded="false">' +
+              esc(d.day) +
+              (n ? '<span class="roll__count">' + n + "</span>" : "") +
+              "</button>" +
+              '<div class="roll__pop" hidden>' +
+              '<div class="roll__pop-head">' +
+              "<strong>" +
+              n +
+              (n === 1 ? " person" : " people") +
+              "</strong>" +
+              (when ? '<span class="roll__when">' + esc(when) + "</span>" : "") +
+              "</div>" +
+              '<ul class="roll__list">' +
+              names +
+              "</ul>" +
+              "</div>" +
+              "</div>"
+            );
+          })
+          .join("");
+        var total = mo.dates.reduce(function (n, d) {
+          return n + heads(signupsFor(mo.name, d.day));
+        }, 0);
+        return (
+          '<div class="roll__month">' +
+          '<h3 class="roll__name">' +
+          esc(mo.name) +
+          "</h3>" +
+          '<div class="roll__dates">' +
+          (dates || '<p class="roll__empty">No dates yet.</p>') +
+          "</div>" +
+          '<p class="roll__total">' +
+          total +
+          (total === 1 ? " person this month" : " people this month") +
+          "</p>" +
+          "</div>"
+        );
+      })
+      .join("");
+    if (statusEl) {
+      statusEl.textContent = window.IEA_SIGNUPS ? "" : "Sign in to see who is attending.";
+    }
+  }
+
+  function closeAll(except) {
+    roll.querySelectorAll(".roll__pop").forEach(function (pop) {
+      if (pop === except) return;
+      pop.hidden = true;
+      var b = pop.previousElementSibling;
+      if (b) b.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  roll.addEventListener("click", function (e) {
+    var btn = e.target.closest(".roll__date");
+    if (!btn) return;
+    var pop = btn.nextElementSibling;
+    if (!pop) return;
+    var opening = pop.hidden;
+    closeAll(pop);
+    pop.hidden = !opening;
+    btn.setAttribute("aria-expanded", String(opening));
+    // A date in the last column would hang its list off the panel — and off
+    // the screen on a narrow window. Once it is shown, measure and flip it.
+    pop.style.left = "";
+    pop.style.right = "";
+    if (opening) {
+      var edge = roll.getBoundingClientRect().right;
+      if (pop.getBoundingClientRect().right > edge) {
+        pop.style.left = "auto";
+        pop.style.right = "0";
+      }
+    }
+  });
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".roll__cell")) closeAll();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeAll();
+  });
+
+  // Redraw when the sign-ups arrive, and whenever the editor above changes —
+  // a new month, a new date, a renamed month, a changed day number.
+  document.addEventListener("signups:loaded", render);
+  if (monthsWrap && "MutationObserver" in window) {
+    var pending = null;
+    var redraw = function () {
+      clearTimeout(pending);
+      pending = setTimeout(render, 150); // typing a day number fires per keystroke
+    };
+    new MutationObserver(redraw).observe(monthsWrap, { childList: true, subtree: true });
+    monthsWrap.addEventListener("input", redraw);
+    monthsWrap.addEventListener("change", redraw);
+  }
+  render();
 })();

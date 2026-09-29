@@ -208,32 +208,12 @@
       <section class="panel">
         <div class="panel__head"><h2>Workshop participants</h2></div>
         <p class="hint">
-          A headcount per month, so you can see who’s attending at a glance.
-          Later this will fill in automatically from sign-ups on the website.
+          Every month you have set up, with each of its dates. Click a date to
+          see how many people are coming that day, and who they are.
         </p>
 
-        <div class="participants" id="participants">
-          <div class="participant">
-            <span class="participant__month">July</span>
-            <input type="number" class="participant__count" min="0" value="0" aria-label="People attending in July" />
-            <span class="participant__label">people</span>
-          </div>
-          <div class="participant">
-            <span class="participant__month">August</span>
-            <input type="number" class="participant__count" min="0" value="0" aria-label="People attending in August" />
-            <span class="participant__label">people</span>
-          </div>
-          <div class="participant">
-            <span class="participant__month">September</span>
-            <input type="number" class="participant__count" min="0" value="0" aria-label="People attending in September" />
-            <span class="participant__label">people</span>
-          </div>
-          <div class="participant">
-            <span class="participant__month">October</span>
-            <input type="number" class="participant__count" min="0" value="0" aria-label="People attending in October" />
-            <span class="participant__label">people</span>
-          </div>
-        </div>
+        <p class="roll__status" data-participants-status></p>
+        <div class="roll" data-participants></div>
       </section>
 
       <!-- ================= WORKSHOP SIGN-UPS ================= -->
@@ -266,8 +246,8 @@
             <label class="dropzone">
               <input type="file" accept="image/*" multiple hidden data-upload />
               <svg class="dropzone__icon" viewBox="0 0 64 48" aria-hidden="true">
-                <path fill="#6c9cf0" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
-                <path fill="#ffffff" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
+                <path fill="#e6b8ab" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
+                <path fill="#fffdfc" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
               </svg>
               <span>Browse file to upload</span>
             </label>
@@ -282,8 +262,8 @@
             <label class="dropzone">
               <input type="file" accept="image/*" multiple hidden data-upload />
               <svg class="dropzone__icon" viewBox="0 0 64 48" aria-hidden="true">
-                <path fill="#6c9cf0" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
-                <path fill="#ffffff" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
+                <path fill="#e6b8ab" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
+                <path fill="#fffdfc" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
               </svg>
               <span>Browse file to upload</span>
             </label>
@@ -298,8 +278,8 @@
             <label class="dropzone">
               <input type="file" accept="image/*" multiple hidden data-upload />
               <svg class="dropzone__icon" viewBox="0 0 64 48" aria-hidden="true">
-                <path fill="#6c9cf0" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
-                <path fill="#ffffff" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
+                <path fill="#e6b8ab" d="M49 42H16A13 13 0 0 1 13.4 16.2 17 17 0 0 1 46.2 20 11.5 11.5 0 0 1 49 42Z" />
+                <path fill="#fffdfc" d="M32 15l9.5 9.5h-6V33h-7v-8.5h-6z" />
               </svg>
               <span>Browse file to upload</span>
             </label>
