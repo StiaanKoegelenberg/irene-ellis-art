@@ -1287,39 +1287,3 @@ body.is-showcase-open {
   inset: 0;
   transition: opacity 0.35s ease;
 }
-
-/* ============================================================
-   FOOTER
-   Two links on the ground colour at the very foot of the page.
-   They were unstyled — default browser blue, underlined, hard left —
-   which read as an unfinished page after everything above it.
-   ============================================================ */
-#footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px clamp(20px, 5vw, 56px);
-  padding: 22px clamp(24px, 6vw, 100px) 10px;
-  /* clear of the ring binding, which overlays the right edge full-height */
-  padding-right: clamp(120px, 12vw, 160px);
-  background: var(--color-ground);
-  font-size: 0.92rem;
-  letter-spacing: 0.04em;
-}
-#footer a {
-  color: #fdf6f2;
-  text-decoration: none;
-  opacity: 0.85;
-  padding: 4px 2px;
-  border-bottom: 1px solid transparent;
-  transition: opacity 0.25s ease, border-color 0.25s ease;
-}
-#footer a:hover {
-  opacity: 1;
-  border-bottom-color: rgba(253, 246, 242, 0.7);
-}
-#footer a:focus-visible {
-  outline: 2px solid #fdf6f2;
-  outline-offset: 3px;
-  border-radius: 3px;
-}
