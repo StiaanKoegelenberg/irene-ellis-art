@@ -298,3 +298,16 @@ body.is-showcase-open {
 .signup__status--error {
   color: #e79aa8; /* a lightened rose-red — the close-X colour is too dark here */
 }
+
+/* Opening the panel locks the page behind it (body.is-showcase-open sets
+   overflow:hidden), which takes the scrollbar away — and the page snaps 15px
+   wider at the exact moment the panel starts growing. Measured: content jumped
+   7px sideways, on both the site and the admin page. Reserving the scrollbar's
+   space permanently means hiding it changes nothing, so the panel grows against
+   a page that holds still.
+
+   Lives here, in the shared file, because both pages open this panel and both
+   had the jump. Older Safari ignores this and behaves as before — no worse. */
+html {
+  scrollbar-gutter: stable;
+}
