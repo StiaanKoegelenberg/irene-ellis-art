@@ -310,4 +310,12 @@ body.is-showcase-open {
    had the jump. Older Safari ignores this and behaves as before — no worse. */
 html {
   scrollbar-gutter: stable;
+  /* The reserved strip, painted so it reads as part of the page edge rather
+     than as a bare gap. Sampled from the strip itself. Giving html a
+     background stops body's background painting the whole canvas, so body
+     now covers its own box and this shows only in the gutter. */
+  background: #333333;
+  /* The scrollbar's own track matched to it, so hiding the scrollbar takes
+     away only the thumb — there is no strip appearing or changing colour. */
+  scrollbar-color: #6b6b6b #333333;
 }
