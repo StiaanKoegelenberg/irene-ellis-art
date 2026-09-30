@@ -406,157 +406,6 @@
   })();
 })();
 
-// --- Workshop sign-ups (Supabase) -----------------------------------------
-// The list of people who signed up on the website. The row rules let ANYONE
-// add a sign-up but only a signed-in admin read them back, so this needs the
-// session token — the publishable key on its own returns nothing.
-(function () {
-  var SB_URL = window.SUPABASE_URL;
-  var SB_KEY = window.SUPABASE_ANON_KEY;
-  var list = document.querySelector("[data-signups]");
-  var statusEl = document.querySelector("[data-signups-status]");
-  var refreshBtn = document.querySelector("[data-signups-refresh]");
-  var editorView = document.querySelector('[data-view="editor"]');
-  if (!list) return;
-
-  function token() {
-    try {
-      return (JSON.parse(localStorage.getItem("iea_admin_session")) || {}).access_token;
-    } catch (e) {
-      return null;
-    }
-  }
-  // One fetch serves two panels: this list, and the per-date participants roll
-  // below it. The rows are handed over rather than fetched twice.
-  function publish(rows) {
-    window.IEA_SIGNUPS = rows;
-    document.dispatchEvent(new CustomEvent("signups:loaded"));
-  }
-  function setStatus(msg, isError) {
-    if (!statusEl) return;
-    statusEl.textContent = msg || "";
-    statusEl.style.color = isError ? "var(--accent)" : "";
-  }
-  // Names and phone numbers are typed by strangers — never let that text be
-  // treated as markup when it is put back on the page.
-  function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
-    });
-  }
-  function when(iso) {
-    var d = iso ? new Date(iso) : null;
-    if (!d || isNaN(d.getTime())) return "";
-    return (
-      d.toLocaleDateString(undefined, { day: "numeric", month: "short" }) +
-      ", " +
-      d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
-    );
-  }
-
-  function render(rows) {
-    if (!rows.length) {
-      list.innerHTML = '<p class="hint">No sign-ups yet.</p>';
-      return;
-    }
-    // Heads per month — the count the participants panel asks you to keep.
-    var totals = {};
-    rows.forEach(function (r) {
-      var m = r.workshop_month || "Not specified";
-      totals[m] = (totals[m] || 0) + (Number(r.attendees) || 1);
-    });
-    var summary = Object.keys(totals)
-      .map(function (m) {
-        return (
-          '<span class="signups__total"><strong>' + esc(m) + "</strong> · " + totals[m] + " people</span>"
-        );
-      })
-      .join("");
-    var body = rows
-      .map(function (r) {
-        var workshop = [r.workshop_month, r.workshop_date].filter(Boolean).join(" · ");
-        return (
-          '<tr><td data-label="Name">' +
-          esc(((r.name || "") + " " + (r.surname || "")).trim()) +
-          '</td><td data-label="Phone">' +
-          esc(r.phone) +
-          '</td><td data-label="People">' +
-          (Number(r.attendees) || 1) +
-          '</td><td data-label="Workshop">' +
-          esc(workshop) +
-          (r.workshop_topic ? '<br><span class="signups__topic">' + esc(r.workshop_topic) + "</span>" : "") +
-          '</td><td data-label="Signed up">' +
-          esc(when(r.created_at)) +
-          "</td></tr>"
-        );
-      })
-      .join("");
-    list.innerHTML =
-      '<div class="signups__totals">' +
-      summary +
-      "</div>" +
-      '<table class="signups__table"><thead><tr>' +
-      "<th>Name</th><th>Phone</th><th>People</th><th>Workshop</th><th>Signed up</th>" +
-      "</tr></thead><tbody>" +
-      body +
-      "</tbody></table>";
-  }
-
-  var loading = false;
-  function load() {
-    if (loading) return;
-    if (!SB_URL || !SB_KEY) {
-      setStatus("Supabase isn’t set up in config.js.", true);
-      return;
-    }
-    var tok = token();
-    if (!tok) {
-      setStatus("Sign in to see the sign-ups.", true);
-      return;
-    }
-    loading = true;
-    setStatus("Loading…");
-    fetch(SB_URL + "/rest/v1/signups?select=*&order=created_at.desc", {
-      headers: { apikey: SB_KEY, Authorization: "Bearer " + tok },
-    })
-      .then(function (r) {
-        if (!r.ok)
-          return r.text().then(function (t) {
-            throw new Error(t || "Error " + r.status);
-          });
-        return r.json();
-      })
-      .then(function (rows) {
-        setStatus("");
-        render(rows || []);
-        publish(rows || []);
-      })
-      .catch(function (err) {
-        var msg = String(err.message || err);
-        // Worth naming plainly: the table hasn't been created in Supabase yet.
-        if (msg.indexOf("PGRST205") >= 0 || msg.indexOf("does not exist") >= 0) {
-          setStatus("The sign-ups table doesn’t exist in Supabase yet.", true);
-        } else {
-          setStatus("Couldn’t load sign-ups: " + msg, true);
-        }
-        publish([]); // still draw the months, with zero counts
-      })
-      .finally(function () {
-        loading = false;
-      });
-  }
-
-  if (refreshBtn) refreshBtn.addEventListener("click", load);
-  // Signing in only unhides the editor — the page never reloads — so load the
-  // list the moment it appears rather than only on first script run.
-  if (editorView && "MutationObserver" in window) {
-    new MutationObserver(function () {
-      if (!editorView.hidden) load();
-    }).observe(editorView, { attributes: true, attributeFilter: ["hidden"] });
-  }
-  if (editorView && !editorView.hidden) load();
-})();
-
 // --- Workshop participants: a roll of every month and its dates ------------
 // Each month you have set up appears with its dates as buttons. Clicking one
 // opens a small list: how many people are coming that day, and who they are.
@@ -570,6 +419,7 @@
   var roll = document.querySelector("[data-participants]");
   var statusEl = document.querySelector("[data-participants-status]");
   var monthsWrap = document.querySelector("#months");
+  var editorView = document.querySelector('[data-view="editor"]');
   if (!roll) return;
 
   function esc(s) {
@@ -733,6 +583,52 @@
   // Redraw when the sign-ups arrive, and whenever the editor above changes —
   // a new month, a new date, a renamed month, a changed day number.
   document.addEventListener("signups:loaded", render);
+
+  // Fetching the sign-ups used to be the removed sign-ups panel's job; this
+  // panel only listened. Now it fetches them itself. Reading the list needs the
+  // admin's token: the row rules let anyone ADD a sign-up but nobody read one
+  // back without signing in, so the publishable key alone returns nothing.
+  var loading = false;
+  function loadSignups() {
+    if (loading) return;
+    var SB_URL = window.SUPABASE_URL;
+    var SB_KEY = window.SUPABASE_ANON_KEY;
+    if (!SB_URL || !SB_KEY) return;
+    var tok;
+    try {
+      tok = (JSON.parse(localStorage.getItem("iea_admin_session")) || {}).access_token;
+    } catch (e) {
+      tok = null;
+    }
+    if (!tok) return; // signed out: the months still draw, with no names
+    loading = true;
+    fetch(SB_URL + "/rest/v1/signups?select=*&order=created_at.desc", {
+      headers: { apikey: SB_KEY, Authorization: "Bearer " + tok },
+    })
+      .then(function (r) {
+        return r.ok ? r.json() : [];
+      })
+      .then(function (rows) {
+        window.IEA_SIGNUPS = rows || [];
+        render();
+      })
+      .catch(function () {
+        window.IEA_SIGNUPS = []; // draw the months with zero counts rather than nothing
+        render();
+      })
+      .finally(function () {
+        loading = false;
+      });
+  }
+  // Signing in only unhides the editor — the page never reloads — so load the
+  // names the moment it appears, not only on first script run.
+  if (editorView && "MutationObserver" in window) {
+    new MutationObserver(function () {
+      if (!editorView.hidden) loadSignups();
+    }).observe(editorView, { attributes: true, attributeFilter: ["hidden"] });
+  }
+  if (editorView && !editorView.hidden) loadSignups();
+
   if (monthsWrap && "MutationObserver" in window) {
     var pending = null;
     var redraw = function () {
