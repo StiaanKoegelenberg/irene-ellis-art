@@ -18,6 +18,9 @@
   // the last ring and the bottom cascade has room. Must clear the 46px
   // page-edge strip (body padding-bottom) plus the ring's own height.
   var BOTTOM_STOP = 120;
+  // On a phone the coil is drawn at half size (the .binding box is half as
+  // wide there too — see style.css). Same breakpoint as the rest of the site.
+  var PHONE = window.matchMedia("(max-width: 640px)");
   var lastKey = "";
 
   function docHeight() {
@@ -34,14 +37,18 @@
   function fill() {
     var h = docHeight();
     var w = document.documentElement.clientWidth;
-    var count = Math.max(1, Math.floor((h - TOP - BOTTOM_STOP) / PERIOD) + 1);
+    // S = how big the rings are drawn: 1 = full size, 0.5 = half (phones).
+    // The rings are still laid out in full-size units; a viewBox twice as
+    // tall as the page squeezes the whole drawing to half on screen.
+    var S = PHONE.matches ? 0.5 : 1;
+    var count = Math.max(1, Math.floor((h - TOP * S - BOTTOM_STOP) / (PERIOD * S)) + 1);
 
-    var key = count + "x" + h + "x" + w;
+    var key = count + "x" + h + "x" + w + "x" + S;
     if (key === lastKey) return; // nothing changed
     lastKey = key;
 
     // --- rings ---
-    svg.setAttribute("viewBox", "0 0 " + WIDTH + " " + h);
+    svg.setAttribute("viewBox", "0 0 " + WIDTH + " " + h / S);
     svg.setAttribute("height", h);
 
     // The coil is the book's SPINE: evenly spaced the whole way down, fixed
@@ -227,6 +234,118 @@
       smoothScrollTo(top, function () {
         history.pushState(null, "", id);
       });
+    });
+  });
+})();
+
+// About — "Continue reading" (phones only; the button is hidden on bigger
+// screens, where the whole story simply shows). Opening and closing is just
+// a class: the smooth unfold itself is CSS (style.css, PHONE LAYOUT).
+(function () {
+  var btn = document.querySelector(".about__toggle");
+  var more = document.getElementById("about-more");
+  if (!btn || !more) return;
+  btn.addEventListener("click", function () {
+    var open = !more.classList.contains("is-open");
+    more.classList.toggle("is-open", open);
+    btn.setAttribute("aria-expanded", String(open));
+    btn.textContent = open ? "Show less" : "Continue reading";
+    // Folding the story away pulls the button up the page; once it has
+    // settled, bring it back into view if it ended up above the screen.
+    if (!open) {
+      setTimeout(function () {
+        if (btn.getBoundingClientRect().top < 0) {
+          btn.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
+      }, 620);
+    }
+  });
+})();
+
+// Phone swipe rows — on a phone the Workshop Dates months and the Portfolio
+// card stacks sit in rows you swipe sideways (the layout is in style.css,
+// PHONE LAYOUT). This adds the small dots under each row showing which card
+// you are on, and marks that card with .is-current: the portfolio stack in
+// view fans open, standing in for the hover a mouse gives it on a computer.
+// On bigger screens the rows don't scroll and the dots are hidden, so none
+// of this shows.
+(function () {
+  var ROWS = [
+    { row: "#workshop-dates .workshops__grid", item: ".workshops__month" },
+    { row: "#portfolio .portfolio__objects", item: ".category" },
+  ];
+  var rebuilds = [];
+
+  ROWS.forEach(function (def) {
+    var row = document.querySelector(def.row);
+    if (!row) return;
+    var dots = document.createElement("div");
+    dots.className = "swipe-dots";
+    dots.setAttribute("aria-hidden", "true"); // a visual hint only
+    row.parentNode.insertBefore(dots, row.nextSibling);
+
+    var items = [];
+    var ticking = false;
+
+    // The card whose middle is nearest the middle of the row's visible area
+    // (the area between the page edge and the rings, set by scroll-padding).
+    function update() {
+      ticking = false;
+      if (!items.length) return;
+      var cs = getComputedStyle(row);
+      var box = row.getBoundingClientRect();
+      var left = box.left + (parseFloat(cs.scrollPaddingLeft) || 0);
+      var right = box.right - (parseFloat(cs.scrollPaddingRight) || 0);
+      var mid = (left + right) / 2;
+      var best = 0;
+      var bestGap = Infinity;
+      items.forEach(function (el, i) {
+        var r = el.getBoundingClientRect();
+        var gap = Math.abs(r.left + r.width / 2 - mid);
+        if (gap < bestGap) {
+          bestGap = gap;
+          best = i;
+        }
+      });
+      items.forEach(function (el, i) {
+        el.classList.toggle("is-current", i === best);
+      });
+      for (var i = 0; i < dots.children.length; i++) {
+        dots.children[i].classList.toggle("is-on", i === best);
+      }
+    }
+
+    function build() {
+      items = [].slice.call(row.querySelectorAll(def.item));
+      dots.innerHTML = items
+        .map(function () {
+          return "<span></span>";
+        })
+        .join("");
+      dots.hidden = items.length < 2; // one card needs no dots
+      update();
+    }
+
+    row.addEventListener(
+      "scroll",
+      function () {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true }
+    );
+    window.addEventListener("resize", update);
+    build();
+    rebuilds.push(build);
+  });
+
+  // The workshop months are redrawn once the saved dates arrive from the
+  // database (content.js), so count the cards again then.
+  document.addEventListener("content:updated", function () {
+    rebuilds.forEach(function (b) {
+      b();
     });
   });
 })();

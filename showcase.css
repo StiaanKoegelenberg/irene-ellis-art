@@ -319,3 +319,69 @@ html {
      away only the thumb — there is no strip appearing or changing colour. */
   scrollbar-color: #6b6b6b #333333;
 }
+
+/* --- Phones (640px wide and narrower) ---
+   The panel fills nearly the whole screen, and the fold-X corner grows to a
+   comfortable thumb size. svh = the screen height with the phone's address
+   bar showing, so the panel never slips under it. */
+@media (max-width: 640px) {
+  .showcase__panel {
+    width: calc(100vw - 20px);
+    height: calc(100svh - 24px);
+    /* the top padding leaves the fold its own strip, so it never sits on a
+       picture */
+    padding: 50px 12px 12px;
+    border-radius: 3px 18px 3px 3px;
+  }
+  .showcase__back {
+    width: 48px;
+    height: 48px;
+    border-top-right-radius: 18px;
+  }
+  .gallery__grid {
+    column-gap: 10px;
+  }
+  .gallery__item {
+    margin-bottom: 10px;
+  }
+  /* phones draw their own thin scrollbar over the content */
+  .gallery::-webkit-scrollbar {
+    width: 0;
+  }
+
+  /* The workshop sign-up: as tall as its fields need, the fields one under
+     the other, and Submit at the bottom right. */
+  .showcase[data-category="workshop"] .showcase__panel {
+    width: min(calc(100vw - 32px), 420px);
+    height: auto;
+    padding: 52px 20px 20px;
+    border-radius: 12px;
+  }
+  .signup {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 12px;
+    height: auto;
+    transform: none;
+  }
+  .signup__field {
+    flex: none;
+    padding: 12px 14px;
+    /* 16px or more stops an iPhone zooming the page in when a field is tapped */
+    font-size: 16px;
+  }
+  .signup__status {
+    position: static;
+    max-width: none;
+    padding: 0;
+  }
+  .signup__status:empty {
+    display: none;
+  }
+  .signup__submit {
+    position: static;
+    align-self: flex-end;
+    padding: 13px 28px;
+  }
+}

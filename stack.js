@@ -22,7 +22,10 @@
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   var PAD = 14; // space kept below each title inside its strip
-  var MIN_WIDTH = 360; // below this there is no room for the effect at all
+  // Phones get a plain scrolling page: no stacking at all. Same breakpoint as
+  // the phone layout in style.css. (Between this and NARROW — small tablets,
+  // phones turned sideways — the effect still runs, with docked titles.)
+  var PHONE = window.matchMedia("(max-width: 640px)");
   // A phone cannot give 60% of its screen to three full-size script titles.
   // Below this width the titles DOCK instead: each shrinks into its slot as it
   // catches, bringing the band to about a quarter of the screen. Wider screens
@@ -44,6 +47,15 @@
   var EXTRAS = {
     "workshop-dates": ".workshops__grid",
     portfolio: ".portfolio__objects",
+  };
+  // Content that HOLDS STILL under its title once the title sticks, keeping
+  // its distance from it — the contact form. Unlike the extras above this is
+  // the real element, not a copy: a copied form could not be tabbed through,
+  // and would lose whatever had been typed each time the strips are rebuilt.
+  // It is held by position:sticky, like everything else here (see .is-held
+  // in style.css) — this script only works out the offset.
+  var HOLDS = {
+    contact: ".contact__box--message, .contact__socials",
   };
 
   var root = document.documentElement;
@@ -70,6 +82,7 @@
       prev: allSecs[allSecs.indexOf(sec) - 1] || null,
       titles: [sec.querySelector(".section-eyebrow"), sec.querySelector("h2")].filter(Boolean),
       extras: EXTRAS[id] ? [].slice.call(sec.querySelectorAll(EXTRAS[id])) : [],
+      holds: HOLDS[id] ? [].slice.call(sec.querySelectorAll(HOLDS[id])) : [],
       seeds: [], // stray dandelions inside the band — found when measuring
       strip: null,
       bg: null,
@@ -162,6 +175,12 @@
       p.extras.forEach(function (el) {
         el.style.pointerEvents = "";
       });
+      p.holds.forEach(function (el) {
+        el.classList.remove("is-held");
+        el.style.removeProperty("--hold-top");
+        el.style.marginBottom = "";
+        el.parentNode.style.minHeight = "";
+      });
       delete p.sec.dataset.navTop;
       delete p.sec.dataset.naturalTop;
       p.titles.concat(p.extras, p.seeds).forEach(function (t) {
@@ -196,7 +215,7 @@
       C += p.S;
     });
 
-    enabled = window.innerWidth >= MIN_WIDTH && VH - C >= MIN_ROOM;
+    enabled = !PHONE.matches && VH - C >= MIN_ROOM;
     if (!enabled) return; // plain scrolling page, left exactly as it is
 
     // Pass 2 — the slots, now that every band's height is known.
@@ -211,6 +230,41 @@
       p.P = Math.min(p.C, VH - p.H);
     });
     mainEnd = docTop(main) + main.offsetHeight;
+
+    // Held content. Its sticky offset is its slot in the band plus how far
+    // down its own section it sits — so once the title sticks, it stops at
+    // exactly the distance from the title it has on the open page.
+    var below = root.scrollHeight - mainEnd; // footer + page edge, under main
+    parts.forEach(function (p) {
+      if (compact) return; // docked titles: everything scrolls with its page
+      // It no longer scrolls once held, so it has to stay in reach: with the
+      // page scrolled right to the end, its bottom may sit no lower than the
+      // inside of the section's bottom border (the section cuts it there).
+      // On a screen too short for the full distance, everything held in this
+      // part is raised by the same amount — closer to the title, but never
+      // cut off, and still lined up with each other.
+      var edge = p.sec.offsetHeight - p.sec.clientHeight - p.sec.clientTop; // bottom border
+      var raise = 0;
+      var offs = p.holds.map(function (el) {
+        var off = docTop(el) - p.T;
+        // where it is DRAWN, which a translate in the stylesheet can shift
+        var drawn = el.getBoundingClientRect().top + window.pageYOffset - p.T;
+        var lowest = VH - below - edge - el.offsetHeight - (drawn - off);
+        raise = Math.max(raise, p.C + off - lowest);
+        return off;
+      });
+      // Sticky may not carry an element out of its parent. A negative bottom
+      // margin is what gives it room to travel; pinning the parent's height
+      // first stops that margin from collapsing the row.
+      p.holds.forEach(function (el) {
+        el.parentNode.style.minHeight = el.parentNode.offsetHeight + "px";
+      });
+      p.holds.forEach(function (el, i) {
+        el.style.marginBottom = -p.H + "px";
+        el.style.setProperty("--hold-top", p.C + offs[i] - raise + "px");
+        el.classList.add("is-held");
+      });
+    });
 
     var mainLeft = docLeft(main);
     parts.forEach(function (p) {

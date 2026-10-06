@@ -74,6 +74,13 @@ body {
   height: 100%;
   overflow: visible;
 }
+/* Phones: the coil at half size, so it takes half the width. script.js draws
+   the rings at half scale to match (its PHONE check uses this breakpoint). */
+@media (max-width: 640px) {
+  .binding {
+    width: 52px;
+  }
+}
 
 /* ============================================================
    HERO / LANDING
@@ -348,29 +355,29 @@ body {
   }
 }
 
-/* The empty portrait area, sat just inside where the rim traces.
-   Kept a whisper warmer than the page so the opening reads, but with
-   soft edges so the flowing rim stays the real frame. */
+/* The portrait area. It covers the WHOLE frame and is then cut to the
+   hand-drawn outline by #aboutPhotoClip (in index.html) — the very same path
+   the marker line is drawn from. So there are no insets or corner radii to
+   keep in step with the line: the photo's edge IS the line's centre, on every
+   side and at every size. The cream colour only shows if the photo fails to
+   load. */
 .about__photo {
   position: absolute;
-  /* Fill right up to the marker outline — the photo edge meets the drawn
-     border so there's no gap of page colour between the photo and the frame. */
-  inset: 8% 10%;
+  inset: 0;
   background: #fbf7f3;
-  /* Match the ornament rim's generous corner curve so the photo hugs the
-     border evenly instead of poking square corners past the rounded rim. */
-  border-radius: 30px;
-  box-shadow: 0 16px 36px -28px rgba(70, 62, 58, 0.4);
-  overflow: hidden;
+  clip-path: url(#aboutPhotoClip);
 }
-/* The portrait fills the frame; positioned a little high so the face stays
-   in view when the tall photo is cropped to the 4:5 frame. */
+/* The portrait itself, a little larger than the outline so it reaches under
+   the line everywhere (the cutter trims the spare). Positioned a little high
+   so the face stays in view when the tall photo is cropped. */
 .about__img {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 8%;
+  left: 10%;
+  width: 80%;
+  height: 84%;
   object-fit: cover;
   object-position: center 20%;
-  border-radius: 30px;
   display: block;
 }
 
@@ -1019,9 +1026,13 @@ body.is-showcase-open {
    ============================================================ */
 #contact {
   position: relative;
-  /* overflow:hidden keeps the drifting landscape strictly inside this
-     section — it must never appear anywhere else on the page */
+  /* Keeps the drifting landscape strictly inside this section — it must never
+     appear anywhere else on the page. "clip" cuts exactly like "hidden" but
+     without turning the section into a scroll box, which would stop the
+     message box inside it from sticking to the screen (see .is-held). The
+     first line is the fallback for browsers too old to know "clip". */
   overflow: hidden;
+  overflow: clip;
   /* identical padding to #workshop-dates, and matched to its height */
   padding: clamp(56px, 10vh, 120px) clamp(32px, 6vw, 100px);
   min-height: 588px;
@@ -1164,6 +1175,204 @@ body.is-showcase-open {
   font-size: clamp(1.7rem, 3.5vw, 2.75rem);
   color: var(--color-text);
 }
+/* --- The three dark boxes ---
+   Under the heading: the big message box on the left, and the two small
+   social boxes right beside its top-right corner — one level with the big
+   box's top, the other directly underneath it. All three use the portfolio
+   showcase's dark "display" colour, so the dark end of the palette journey
+   shows up here too. */
+.contact__boxes {
+  position: relative;
+  z-index: 1; /* above the drifting landscape */
+  display: flex;
+  justify-content: flex-start; /* small boxes sit right next to the big one */
+  align-items: flex-start; /* tops level */
+  gap: clamp(12px, 1.4vw, 20px);
+  /* nudged in a little from the heading's left edge */
+  padding-left: clamp(0px, 3vw, 46px);
+  /* The whole group is raised by 7% of the SECTION's height. CSS can't
+     measure the section from in here, but a percentage in translate means "of
+     this element's own height", and this row is exactly as tall as the big
+     box — about half the section — so 13.3% of it comes to 7% of the section
+     (minus = up). On the row rather than the big box, so the small boxes rise
+     with it and stay level with its top. A translate moves only the picture:
+     the section's height is unchanged. */
+  translate: 0 -13.3%;
+}
+.contact__box {
+  background: #2a2826; /* exactly the portfolio showcase panel's dark */
+}
+.contact__box--message {
+  flex: 0 1 auto;
+  width: clamp(260px, 42%, 545px);
+  /* 3:2 is the box's shape when the fields fit; if they need more height
+     (a narrow box), it simply grows taller rather than cutting them off */
+  aspect-ratio: 3 / 2;
+  border-radius: 18px; /* the same curve as the Workshop Dates month cards */
+  /* the form inside: a column of rows, kept clear of the rounded corners */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+  padding: clamp(22px, 2.5vw, 34px);
+}
+/* Once the Get In Touch title sticks in the band, the boxes hold still under
+   it instead of sliding up into it. stack.js adds .is-held to the big box and
+   to the pair of small ones, and works out --hold-top for each (the title's
+   slot + its own distance down the section); the browser's position:sticky
+   does the holding. */
+.stack-on #contact .is-held {
+  position: sticky;
+  top: var(--hold-top);
+}
+
+/* --- The form fields ---
+   The same look as the workshop sign-up fields in showcase.css: a fill a
+   little greyer than the dark box, a deep-pink ring, soft 12px corners, and
+   a rose-red ring with a glow while a field is being typed in. */
+.contact__row {
+  display: flex;
+  gap: 10px;
+}
+.contact__field {
+  flex: 0 0 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  /* a readable font, per the content rules (fields don't inherit one) */
+  font: 1rem/1.3 "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f1dfd6; /* light text, readable on the grey fill */
+  padding: 10px 12px;
+  background: #433e3a; /* slightly greyer than the #2a2826 box */
+  border: 2px solid #e6b8ab; /* deep-pink ring */
+  border-radius: 12px;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease,
+    background-color 0.35s ease;
+}
+.contact__row .contact__field {
+  flex: 1 1 0; /* name and surname share the row equally */
+  width: auto;
+}
+/* the message takes whatever height is left between the email and Submit */
+.contact__field--message {
+  flex: 1 1 64px;
+  min-height: 64px;
+  resize: none;
+}
+.contact__field::placeholder {
+  color: #c9bdb6;
+}
+.contact__field:focus {
+  outline: none;
+  border-color: #a8465a;
+  box-shadow: 0 0 0 3px rgba(168, 70, 90, 0.3);
+}
+/* Submit, bottom-right — the same pink button as the workshop sign-up's */
+.contact__submit {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  font: 600 1rem/1.3 "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0.04em;
+  color: #2a2826; /* the box's own dark, so the pink reads as the lit surface */
+  padding: 10px 26px;
+  background: #eed0c8; /* brand pink */
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.3s ease;
+}
+.contact__submit:hover {
+  background: #f1dfd6; /* lifts toward the lighter blush */
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.6);
+}
+.contact__submit:active {
+  transform: translateY(1px);
+}
+.contact__submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(168, 70, 90, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact__field,
+  .contact__submit {
+    transition: none;
+  }
+}
+
+/* the two small boxes: one under the other, left edges in line */
+.contact__socials {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.4vw, 20px); /* same spacing as between them and the big box */
+}
+/* Each small box: a round profile picture on the left, the name on the right.
+   The box is as wide as its picture and name need (never narrower than the
+   min-width), and the column stretches both boxes to the wider one's width,
+   so the pair stays the same size. --pic is the picture's diameter; the box's
+   height follows from it, which is what keeps a still-empty box the same
+   height as a filled one. */
+.contact__box--social {
+  --pic: clamp(44px, 3.8vw, 54px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  min-width: clamp(110px, 12vw, 168px);
+  min-height: calc(var(--pic) + 22px);
+  padding: 11px 20px 11px 11px;
+  border-radius: 18px; /* matches the big box and the month cards */
+  text-decoration: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+/* only the filled boxes are links */
+a.contact__box--social:hover {
+  background: #38332f; /* a touch lighter: the showcase scrollbar's dark */
+}
+a.contact__box--social:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(168, 70, 90, 0.55);
+}
+/* border-radius:50% turns the square picture into a circle */
+.contact__social-pic {
+  flex: none;
+  width: var(--pic);
+  height: var(--pic);
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.contact__social-name {
+  /* A true bold (Inter 700 is loaded in index.html — asking for a weight that
+     isn't loaded makes the browser smear a lighter one to fake it), in the
+     brand white rather than the softer blush, so the name reads crisply. */
+  font: 700 1.05rem/1.2 "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+  color: var(--color-white);
+  -webkit-font-smoothing: antialiased;
+  white-space: nowrap;
+}
+/* Narrow screens: no room side by side, so the small boxes drop underneath */
+@media (max-width: 640px) {
+  .contact__boxes {
+    flex-direction: column;
+    align-items: stretch;
+    padding-left: 0;
+    translate: none; /* stacked: lifting it would crowd the heading */
+  }
+  .contact__box--message {
+    width: 100%;
+  }
+  .contact__socials {
+    flex-direction: row; /* side by side under the big box... */
+    flex-wrap: wrap; /* ...or one under the other if both names can't fit */
+  }
+  .contact__box--social {
+    flex: 1 1 auto; /* share the row, but never squeeze a name */
+  }
+}
+
 /* Readable font for the details, per the brand's content rules */
 .contact__line {
   margin: 0 0 0.6em;
@@ -1286,4 +1495,289 @@ body.is-showcase-open {
   position: absolute;
   inset: 0;
   transition: opacity 0.35s ease;
+}
+
+/* ============================================================
+   PHONE LAYOUT (640px wide and narrower)
+   Everything that makes the site work on a phone, in one place.
+   The desktop layout above is untouched; these rules only take over
+   on narrow screens. Same palette, script headings, ring binding and
+   card stacks — just arranged for a thumb:
+   · one shared set of side gutters, clear of the rings on the right
+   · the long parts made shorter: About folds its last paragraphs
+     away, Workshop Dates and Portfolio become rows you swipe sideways
+   · tap targets at least 44px tall, and a gentle press effect
+   The page stack (stack.js) is switched off at this width, so the
+   spacing it needed under the headings is taken back out here.
+   ============================================================ */
+
+/* Phone-only pieces: hidden on bigger screens */
+.about__toggle,
+.swipe-dots {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  :root {
+    /* Side gutters. The right one clears the half-size rings, which begin
+       44px in from the right edge on every phone — so text stops 12px short
+       of them. The left one clears the cascading page edges. */
+    --phone-pad-l: 26px;
+    --phone-pad-r: 56px;
+    --phone-pad-y: 48px;
+  }
+
+  /* --- Shared section spacing --- */
+  #about,
+  #workshop-dates,
+  #portfolio,
+  #contact {
+    padding: var(--phone-pad-y) var(--phone-pad-r) var(--phone-pad-y) var(--phone-pad-l);
+  }
+  #contact {
+    padding-bottom: calc(var(--phone-pad-y) - 4px); /* its thicker bottom border */
+  }
+  /* The titles were lifted to line up when pages stack; no stacking here, so
+     they sit in their natural place and the gap they left behind closes. */
+  .workshops__head,
+  .portfolio__head,
+  .contact__heading {
+    top: 0;
+  }
+  /* Script headings a touch smaller, so "Workshop Dates" fits on one line
+     between the page edge and the rings on even a small phone */
+  .about__heading,
+  .workshops__heading,
+  .portfolio__heading {
+    font-size: clamp(2.6rem, 12.5vw, 3.4rem);
+  }
+
+  /* No grey flash when something is tapped; each control has its own press
+     effect instead (below) */
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* --- Hero --- */
+  .hero__inner {
+    padding: 64px var(--phone-pad-r) 24px var(--phone-pad-l);
+  }
+  /* The three roles on three lines: each dot becomes a line break (a block
+     with no height) instead of wrapping "Master of / Ceremony" awkwardly */
+  .hero__tagline {
+    font-size: 1.12rem;
+    line-height: 1.55;
+  }
+  .hero__dot {
+    display: block;
+    height: 0;
+    overflow: hidden;
+  }
+  /* The four buttons as a tidy 2 x 2 grid of equal pills */
+  .hero__nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 var(--phone-pad-r) 44px var(--phone-pad-l);
+  }
+  .hero__nav a {
+    padding: 15px 6px;
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* --- About --- */
+  #about {
+    gap: 28px;
+  }
+  .about__frame {
+    width: 210px;
+    margin: 0 auto; /* centred on its own line, above the story */
+  }
+  .about__lead {
+    font-size: 1.45rem;
+  }
+  .about__bio {
+    font-size: 1.06rem;
+    line-height: 1.68;
+  }
+  .about__quote {
+    font-size: 1.3rem;
+  }
+  /* "Continue reading": the last two paragraphs fold down to their first few
+     lines, fading out. The grid row animating from 0fr to 1fr is what lets
+     the text open smoothly to its real height. */
+  .about__more {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.6s ease;
+  }
+  .about__more.is-open {
+    grid-template-rows: 1fr;
+  }
+  .about__more-inner {
+    overflow: hidden;
+    min-height: 5.4em; /* the teaser: about three lines */
+    -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent);
+    mask-image: linear-gradient(to bottom, #000 25%, transparent);
+  }
+  .about__more.is-open .about__more-inner {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  /* the same pill as the hero buttons */
+  .about__toggle {
+    display: block;
+    margin: 6px 0 0;
+    padding: 14px 24px;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-text);
+    background-color: rgba(253, 253, 253, 0.4);
+    border: 1px solid rgba(44, 44, 44, 0.22);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  /* --- Swipe rows (Workshop Dates months, Portfolio stacks) ---
+     The row runs edge to edge (the negative margins undo the section's
+     gutters) so cards slide in from the page edge and out under the rings,
+     like pages in the book. Snap points land each card neatly. */
+  .workshops__row,
+  .portfolio__row {
+    gap: 22px;
+  }
+  .workshops__grid,
+  .portfolio__objects {
+    flex: 0 0 calc(100% + var(--phone-pad-l) + var(--phone-pad-r));
+    margin: 0 calc(-1 * var(--phone-pad-r)) 0 calc(-1 * var(--phone-pad-l));
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain; /* a sideways swipe never drags the page */
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 var(--phone-pad-r) 0 var(--phone-pad-l);
+    scrollbar-width: none;
+  }
+  .workshops__grid::-webkit-scrollbar,
+  .portfolio__objects::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Months: one card per swipe, with the next one peeking in on the right */
+  .workshops__grid {
+    align-items: stretch; /* every card the same height */
+    gap: 14px;
+    padding: 4px var(--phone-pad-r) 22px var(--phone-pad-l); /* room for shadows */
+  }
+  .workshops__month {
+    flex: 0 0 min(78%, 270px);
+    scroll-snap-align: start;
+  }
+  /* The cards are already in view as one row, so they don't rise in one by
+     one (inside a sideways row that would replay on every swipe) */
+  .js-reveal .workshops__month.reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .workshop__topic {
+    font-size: 0.8rem;
+  }
+
+  /* Portfolio: the stack in view sits centred between the page edge and the
+     rings, with its neighbours peeking in either side. The padding lets the
+     first and last stack reach the centre too. */
+  .portfolio__objects {
+    --cat: 214px;
+    --mid: calc((var(--phone-pad-l) + 100vw - var(--phone-pad-r)) / 2);
+    gap: 4px;
+    padding: 12px calc(100vw - var(--mid) - var(--cat) / 2) 12px
+      calc(var(--mid) - var(--cat) / 2);
+  }
+  .category {
+    flex: 0 0 var(--cat);
+    width: var(--cat);
+    scroll-snap-align: center;
+  }
+  /* No hover on a touch screen, so the stack in view (marked by script.js)
+     fans open instead — the same twist a mouse gives it on a computer */
+  .category.is-current .cards {
+    transform: scale(1.06);
+  }
+  .category.is-current .card--1 { transform: rotate(-38deg); }
+  .category.is-current .card--2 { transform: rotate(-28deg); }
+  .category.is-current .card--3 { transform: rotate(-18deg); }
+  .category.is-current .card--4 { transform: rotate(-9deg); }
+  /* ...but tapping it still swells and fades the stack as the panel opens */
+  .category.is-current.is-opening .cards {
+    transform: scale(1.3);
+  }
+  .category__button {
+    padding: 14px 20px;
+    font-size: 0.78rem;
+  }
+
+  /* The dots under each row: which card you are on (script.js keeps them
+     in step). The current one stretches into a short rose dash. */
+  .swipe-dots {
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: -8px;
+  }
+  .swipe-dots[hidden] {
+    display: none;
+  }
+  .swipe-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(44, 44, 44, 0.22);
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+  .swipe-dots span.is-on {
+    width: 18px;
+    background: var(--color-accent);
+  }
+
+  /* --- Get In Touch --- */
+  .contact__field--message {
+    min-height: 104px;
+  }
+  .contact__submit {
+    padding: 13px 28px;
+  }
+
+  /* --- Press effect: a small give under the thumb --- */
+  .hero__nav a,
+  .about__toggle,
+  .workshop,
+  .category__button,
+  .contact__submit,
+  a.contact__box--social {
+    transition: transform 0.15s ease, background-color 0.25s ease,
+      border-color 0.25s ease;
+  }
+  .hero__nav a:active,
+  .about__toggle:active,
+  .workshop:active,
+  .category__button:active,
+  .contact__submit:active,
+  a.contact__box--social:active {
+    transform: scale(0.97);
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .about__more,
+  .swipe-dots span {
+    transition: none;
+  }
 }

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;1,400;1,500&family=Inter:wght@400;500&family=Pinyon+Script&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;1,400;1,500&family=Inter:wght@400;500;600;700&family=Pinyon+Script&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
@@ -100,8 +100,11 @@
         <svg class="stray-seed" style="left:86%;top:78%;width:32px" viewBox="0 0 40 56" aria-hidden="true"><use href="#seed" class="seed seed--4 seed--meat" /></svg>
         <svg class="stray-seed" style="left:82%;top:92%;width:44px" viewBox="0 0 40 56" aria-hidden="true"><use href="#seed" class="seed seed--6 seed--meat" /></svg>
 
-        <!-- Photo placeholder: a hand-drawn marker outline around an empty
-             area, left intentionally empty until Irene's portrait is added. -->
+        <!-- Irene's portrait inside a marker outline. The outline shape is
+             written ONCE (#aboutOutline) and used twice: drawn as the marker
+             line, and as the cutter that trims the photo. Because both come
+             from the same shape, the photo edge always sits exactly under the
+             line — change the shape and both follow. -->
         <div class="about__frame">
           <div class="about__photo">
             <img
@@ -110,14 +113,24 @@
               alt="Portrait of Irene Ellis"
             />
           </div>
-          <!-- A single hand-drawn marker outline traced around the photo -->
           <svg class="about__ornament" viewBox="0 0 400 500" fill="none" aria-hidden="true">
-            <path
-              d="M56,45 C 140,42 232,44 306,43 C 334,42.6 354,45 356,68
-                 C 358,152 359,318 356,438 C 355,452 349,458 328,457
-                 C 240,459 140,457 68,458 C 51,458.4 42,451 44,434
-                 C 42,318 41,152 43,68 C 43.4,50 48,45 56,45
-                 C 66,45 74,44.6 84,44.4"
+            <defs>
+              <!-- A plain rounded rectangle: rx is the corner radius, and one
+                   rx gives all four corners exactly the same curve. (This
+                   replaced a hand-drawn path whose corners each curved
+                   differently.) To make the corners rounder or tighter,
+                   change rx — nothing else needs touching. -->
+              <rect id="aboutOutline" x="42" y="43" width="316" height="415" rx="26" />
+              <!-- The cutter. objectBoundingBox means "0 to 1 across the
+                   element being cut", so the scale shrinks the 400x500
+                   drawing to fit: 1/400 = 0.0025, 1/500 = 0.002. -->
+              <clipPath id="aboutPhotoClip" clipPathUnits="objectBoundingBox" transform="scale(0.0025 0.002)">
+                <use href="#aboutOutline" />
+              </clipPath>
+            </defs>
+            <!-- The marker line itself -->
+            <use
+              href="#aboutOutline"
               stroke="#cba69c"
               stroke-width="5"
               stroke-linecap="round"
@@ -150,19 +163,29 @@
               I can create on the level He has set out for me.
             </p>
 
-            <p class="about__bio">
-              No two artists create from the same place. Just like the quote by
-              Paul Avellino says, no one sees the rainbow in exactly the same
-              way. The angle, the light, the colours — they are all shaped by
-              where we stand. The same is true of art.
-            </p>
+            <!-- The last two paragraphs. On a computer they simply show; on a
+                 phone they fold away behind "Continue reading" so the page is
+                 shorter (style.css "PHONE LAYOUT", script.js). -->
+            <div class="about__more" id="about-more">
+              <div class="about__more-inner">
+                <p class="about__bio">
+                  No two artists create from the same place. Just like the quote by
+                  Paul Avellino says, no one sees the rainbow in exactly the same
+                  way. The angle, the light, the colours — they are all shaped by
+                  where we stand. The same is true of art.
+                </p>
 
-            <p class="about__bio">
-              No one else can create from my perspective, my experiences, my
-              journey, or my faith. And perhaps that is what makes art so
-              beautiful — every piece carries a little of the artist's soul and a
-              glimpse of the unique way they see the world.
-            </p>
+                <p class="about__bio">
+                  No one else can create from my perspective, my experiences, my
+                  journey, or my faith. And perhaps that is what makes art so
+                  beautiful — every piece carries a little of the artist's soul and a
+                  glimpse of the unique way they see the world.
+                </p>
+              </div>
+            </div>
+            <button type="button" class="about__toggle" aria-expanded="false" aria-controls="about-more">
+              Continue reading
+            </button>
           </div>
         </div>
       </section>
@@ -3166,6 +3189,53 @@
              because with the phone number and email gone it was describing
              details that are no longer on the page. -->
         <h2 class="contact__heading reveal">Get In Touch</h2>
+
+        <!-- Three dark boxes over the landscape.
+             · The big one is the message form: name + surname side by side,
+               the sender's email, the message, and Submit bottom-right. The
+               fields look like the workshop sign-up fields. Submit is NOT
+               wired up yet — it is type="button", so pressing it does nothing.
+             · The two small ones are still empty; they will become the
+               Facebook and Instagram links (swap each <div> for an
+               <a href="…"> when the real profile addresses are known). -->
+        <div class="contact__boxes">
+          <form class="contact__box contact__box--message" novalidate>
+            <div class="contact__row">
+              <input class="contact__field" type="text" name="name" placeholder="Name" aria-label="Name" autocomplete="given-name" />
+              <input class="contact__field" type="text" name="surname" placeholder="Surname" aria-label="Surname" autocomplete="family-name" />
+            </div>
+            <input class="contact__field" type="email" name="email" placeholder="Your email address" aria-label="Your email address" autocomplete="email" />
+            <textarea class="contact__field contact__field--message" name="message" placeholder="Message" aria-label="Message"></textarea>
+            <button type="button" class="contact__submit">Submit</button>
+          </form>
+          <div class="contact__socials">
+            <!-- Facebook (top): profile picture (shown as a circle) + the
+                 page's name. The whole box is the link; it opens in a new tab. -->
+            <a
+              class="contact__box contact__box--social"
+              data-social="facebook"
+              href="https://www.facebook.com/ireneellisart613"
+              target="_blank"
+              rel="noopener"
+              aria-label="Irene Ellis Art on Facebook"
+            >
+              <img class="contact__social-pic" src="images/facebook-profile.png" alt="" width="147" height="147" />
+              <span class="contact__social-name">Irene Ellis ART</span>
+            </a>
+            <!-- Instagram (below): the same arrangement, with the handle -->
+            <a
+              class="contact__box contact__box--social"
+              data-social="instagram"
+              href="https://www.instagram.com/ireneellisart/"
+              target="_blank"
+              rel="noopener"
+              aria-label="Irene Ellis Art on Instagram: ireneellisart"
+            >
+              <img class="contact__social-pic" src="images/instagram-profile.png" alt="" width="147" height="147" />
+              <span class="contact__social-name">ireneellisart</span>
+            </a>
+          </div>
+        </div>
       </section>
 
     </main>
