@@ -327,7 +327,9 @@ html {
 @media (max-width: 640px) {
   .showcase__panel {
     width: calc(100vw - 20px);
-    height: calc(100svh - 24px);
+    /* half the screen's height; the pictures keep their size, and the ones
+       below the panel's bottom edge are reached by scrolling inside it */
+    height: calc((100svh - 24px) / 2);
     /* the top padding leaves the fold its own strip, so it never sits on a
        picture */
     padding: 50px 12px 12px;

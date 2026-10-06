@@ -1563,10 +1563,26 @@ a.contact__box--social:focus-visible {
   .hero__inner {
     padding: 64px var(--phone-pad-r) 24px var(--phone-pad-l);
   }
+  /* The name at twice its usual phone size (30% of the screen width instead
+     of 15%), so it fills the open space at the top of the screen */
+  .hero__title {
+    font-size: 30vw;
+    /* the name is centred; this nudges it a few pixels left, into the open
+       space by the page edge and away from the rings */
+    margin-right: 0.16em;
+  }
+  /* ...with a slightly shallower staircase (each word steps in a little less
+     than on desktop), so at that size "Art" stays clear of the rings */
+  .hero__word--2 {
+    margin-left: 0.5em;
+  }
+  .hero__word--3 {
+    margin-left: 1em;
+  }
   /* The three roles on three lines: each dot becomes a line break (a block
      with no height) instead of wrapping "Master of / Ceremony" awkwardly */
   .hero__tagline {
-    font-size: 1.12rem;
+    font-size: 1.4rem; /* 25% larger than the first phone size (1.12rem) */
     line-height: 1.55;
   }
   .hero__dot {
@@ -1659,6 +1675,9 @@ a.contact__box--social:focus-visible {
     flex-wrap: nowrap;
     justify-content: flex-start;
     overflow-x: auto;
+    /* sideways only: nothing inside can be dragged up and down, and an
+       up-down swipe that starts on a card simply scrolls the page */
+    overflow-y: hidden;
     overscroll-behavior-x: contain; /* a sideways swipe never drags the page */
     scroll-snap-type: x mandatory;
     scroll-padding: 0 var(--phone-pad-r) 0 var(--phone-pad-l);
@@ -1671,7 +1690,7 @@ a.contact__box--social:focus-visible {
 
   /* Months: one card per swipe, with the next one peeking in on the right */
   .workshops__grid {
-    align-items: stretch; /* every card the same height */
+    align-items: flex-start; /* each card only as tall as its dates, as on desktop */
     gap: 14px;
     padding: 4px var(--phone-pad-r) 22px var(--phone-pad-l); /* room for shadows */
   }
@@ -1697,7 +1716,9 @@ a.contact__box--social:focus-visible {
     --cat: 214px;
     --mid: calc((var(--phone-pad-l) + 100vw - var(--phone-pad-r)) / 2);
     gap: 4px;
-    padding: 12px calc(100vw - var(--mid) - var(--cat) / 2) 12px
+    /* the bottom padding is room for the fanned cards, which reach a little
+       below the stack (the row cuts off anything past its edge) */
+    padding: 12px calc(100vw - var(--mid) - var(--cat) / 2) 24px
       calc(var(--mid) - var(--cat) / 2);
   }
   .category {
@@ -1748,6 +1769,18 @@ a.contact__box--social:focus-visible {
   }
 
   /* --- Get In Touch --- */
+  /* The title at double its size (3.4rem instead of 1.7rem). It grows UP
+     into the empty space at the top of the section: the negative top margin
+     is exactly how much taller it got, so the form below stays where it was.
+     The gap under it is kept at its old size rather than doubling with it. */
+  .contact__heading {
+    font-size: 3.4rem;
+    line-height: 1;
+    margin: -26px 0 19px;
+  }
+  .contact__heading::after {
+    margin-top: 10px;
+  }
   .contact__field--message {
     min-height: 104px;
   }
