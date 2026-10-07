@@ -553,6 +553,9 @@ body {
 }
 .workshops__intro {
   margin: 0;
+  /* wraps to a couple of lines under the title instead of widening the
+     heading block (which would push the month cards aside) */
+  max-width: 22em;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 1rem;
   line-height: 1.6;
@@ -1268,10 +1271,43 @@ body.is-showcase-open {
   border-color: #a8465a;
   box-shadow: 0 0 0 3px rgba(168, 70, 90, 0.3);
 }
+/* The bottom row: the status line on the left, Submit on the right */
+.contact__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+/* "Sending…" / "Thank you…" / what to fix — the same colours as the workshop
+   sign-up's replies */
+.contact__status {
+  flex: 1 1 auto;
+  margin: 0;
+  font: 0.9rem/1.35 "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #c9bdb6; /* quiet grey while it only says "Sending…" */
+}
+.contact__status--ok {
+  color: #eed0c8; /* brand pink: it worked */
+}
+.contact__status--error {
+  color: #e79aa8; /* a lightened rose-red, readable on the dark box */
+}
+/* The spam trap: moved far off-screen rather than display:none, because some
+   bots skip fields that are hidden that way */
+.contact__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.contact__submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 /* Submit, bottom-right — the same pink button as the workshop sign-up's */
 .contact__submit {
   flex: 0 0 auto;
-  align-self: flex-end;
+  margin-left: auto;
   font: 600 1rem/1.3 "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   letter-spacing: 0.04em;
   color: #2a2826; /* the box's own dark, so the pink reads as the lit surface */
@@ -1667,6 +1703,12 @@ a.contact__box--social:focus-visible {
   .workshops__row,
   .portfolio__row {
     gap: 22px;
+  }
+  /* the heading block takes the full width and no more, so the intro line
+     wraps before the rings instead of stretching the block past them */
+  .workshops__head {
+    flex: 1 1 100%;
+    min-width: 0;
   }
   .workshops__grid,
   .portfolio__objects {

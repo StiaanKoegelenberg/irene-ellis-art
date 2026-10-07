@@ -6,3 +6,10 @@
 // NEVER put the `sb_secret_…` key here — that one must never reach the browser.
 window.SUPABASE_URL = "https://nmwzcpaajdthapvkuzdu.supabase.co";
 window.SUPABASE_ANON_KEY = "sb_publishable_Prr6xOLYeo-A_cLAcENMlA_CMMah0Uo";
+
+// Get In Touch form — messages are emailed to Irene by Web3Forms (a free form
+// service). The key comes from web3forms.com: enter Irene's email address
+// there and they email you the key. It is SAFE in the browser too — all it can
+// do is send a message to that one inbox. While it is empty, the form tells
+// visitors that messages aren't connected yet.
+window.WEB3FORMS_KEY = "";

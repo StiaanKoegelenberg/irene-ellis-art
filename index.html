@@ -4,6 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Irene Ellis Art</title>
+    <meta
+      name="description"
+      content="Irene Ellis: artist, motivational speaker and Master of Ceremony. Original paintings and drawings, and art workshops through the year."
+    />
+    <!-- The tab icon (a dandelion seed), and the picture a phone uses when the
+         site is saved to its home screen -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <!-- the colour a phone's browser bar takes on this page (the hero's white) -->
+    <meta name="theme-color" content="#fdfdfd" />
+
+    <!-- How the link looks when it is shared on WhatsApp, Facebook or in a
+         message: a title, a line, and images/share-preview.jpg (a 1200x630
+         card in the site's own lettering, with a fanned stack of paintings).
+         These addresses must be complete web addresses, so they point at the
+         live site. If the site moves to its own domain, change both. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Irene Ellis Art" />
+    <meta property="og:title" content="Irene Ellis Art" />
+    <meta
+      property="og:description"
+      content="Artist, motivational speaker and Master of Ceremony. Original paintings and drawings, and art workshops through the year."
+    />
+    <meta property="og:url" content="https://stiaankoegelenberg.github.io/irene-ellis-art/" />
+    <meta
+      property="og:image"
+      content="https://stiaankoegelenberg.github.io/irene-ellis-art/images/share-preview.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Irene Ellis Art, with three of her paintings fanned out like cards" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -204,11 +236,15 @@
              arrangement as the Portfolio section's card stacks. -->
         <div class="workshops__row">
           <div class="workshops__head">
-            <!-- TODO: replace with a real detail (venue, group size, how to
-                 book). Right now this only states what the section shows. -->
+            <!-- The intro says how booking works, which is true of the site
+                 today. Irene may want to add her own details here (venue,
+                 group size, price, what to bring). -->
             <p class="section-eyebrow reveal">The next four months</p>
             <h2 class="workshops__heading reveal">Workshop Dates</h2>
-            <p class="workshops__intro reveal">Placeholder for description</p>
+            <p class="workshops__intro reveal">
+              Tap a date to book your place. Irene will be in touch to confirm
+              the details.
+            </p>
           </div>
 
           <!-- Four upcoming months. Each month name sits above a rounded card
@@ -292,8 +328,9 @@
                 class="category__button"
                 data-category-open
                 data-category="Category one"
+                aria-label="View Category one"
               >
-                Category one
+                View
               </button>
             </div>
             <div class="category">
@@ -312,8 +349,9 @@
                 class="category__button"
                 data-category-open
                 data-category="Category two"
+                aria-label="View Category two"
               >
-                Category two
+                View
               </button>
             </div>
             <div class="category">
@@ -332,8 +370,9 @@
                 class="category__button"
                 data-category-open
                 data-category="Category three"
+                aria-label="View Category three"
               >
-                Category three
+                View
               </button>
             </div>
           </div>
@@ -3193,8 +3232,8 @@
         <!-- Three dark boxes over the landscape.
              · The big one is the message form: name + surname side by side,
                the sender's email, the message, and Submit bottom-right. The
-               fields look like the workshop sign-up fields. Submit is NOT
-               wired up yet — it is type="button", so pressing it does nothing.
+               fields look like the workshop sign-up fields. Sending is done by
+               contact.js, which emails the message to Irene.
              · The two small ones are still empty; they will become the
                Facebook and Instagram links (swap each <div> for an
                <a href="…"> when the real profile addresses are known). -->
@@ -3206,7 +3245,15 @@
             </div>
             <input class="contact__field" type="email" name="email" placeholder="Your email address" aria-label="Your email address" autocomplete="email" />
             <textarea class="contact__field contact__field--message" name="message" placeholder="Message" aria-label="Message"></textarea>
-            <button type="button" class="contact__submit">Submit</button>
+            <!-- Spam trap: hidden from people, but form-filling bots tick it,
+                 and any message with it ticked is thrown away. -->
+            <input class="contact__trap" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div class="contact__actions">
+              <!-- "Sending…", "Thank you…", or what to fix — read out by
+                   screen readers when it changes -->
+              <p class="contact__status" role="status" aria-live="polite"></p>
+              <button type="submit" class="contact__submit">Submit</button>
+            </div>
           </form>
           <div class="contact__socials">
             <!-- Facebook (top): profile picture (shown as a circle) + the
@@ -3240,11 +3287,6 @@
 
     </main>
 
-    <footer id="footer">
-      <!-- TODO: replace href="#" with real profile URLs -->
-      <a href="#">Facebook — ireneellisart613</a>
-      <a href="#">Instagram — ireneellisart</a>
-    </footer>
 
     <!-- ===================================================================
          CATEGORY SHOWCASE — full-screen takeover, opened by a category
@@ -3355,5 +3397,6 @@
     <script src="stack.js"></script>
     <script src="content.js"></script>
     <script src="signup.js"></script>
+    <script src="contact.js"></script>
   </body>
 </html>

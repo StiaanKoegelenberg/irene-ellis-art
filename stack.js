@@ -234,7 +234,7 @@
     // Held content. Its sticky offset is its slot in the band plus how far
     // down its own section it sits — so once the title sticks, it stops at
     // exactly the distance from the title it has on the open page.
-    var below = root.scrollHeight - mainEnd; // footer + page edge, under main
+    var below = root.scrollHeight - mainEnd; // the page-edge strip under main
     parts.forEach(function (p) {
       if (compact) return; // docked titles: everything scrolls with its page
       // It no longer scrolls once held, so it has to stay in reach: with the

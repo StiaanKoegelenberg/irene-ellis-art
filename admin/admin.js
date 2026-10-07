@@ -113,9 +113,9 @@
   show(sessionValid() ? "editor" : "login");
 })();
 
-// Admin page interactions — enough to make the layout usable to build on.
-// NOTE: nothing is saved/persisted yet. Uploads only preview locally; adding
-// the real "Save" (backend / build step / localStorage) is the next step.
+// Admin page interactions: adding/removing months and dates, the portfolio
+// upload previews, and saving the workshop dates to the database.
+// NOTE: portfolio uploads still only preview in this tab — they are not saved.
 (function () {
   var WEEKDAYS = [
     "Monday",
@@ -262,7 +262,7 @@
 
   // --- Content storage (Supabase) ------------------------------------------
   // Load saved content into the editor on start, and save the workshop months
-  // + participant counts back to the database on demand. Reading is public
+  // back to the database on demand. Reading is public
   // (anyone can see the dates); writing needs the signed-in admin's token, so
   // only you can change it (enforced by the row-level rules on the table).
   (function () {
@@ -304,12 +304,10 @@
         });
         monthsData.push({ name: nameEl ? nameEl.value.trim() : "", dates: dates });
       });
-      var participants = {};
-      document.querySelectorAll(".participant").forEach(function (p) {
-        var name = p.querySelector(".participant__month").textContent.trim();
-        participants[name] = Number(p.querySelector(".participant__count").value) || 0;
-      });
-      return { months: monthsData, participants: participants };
+      // (This used to save "participant counts" too, from a panel that has
+      // since been replaced by the Workshop participants roll, which reads
+      // real sign-ups instead. Only the months are saved now.)
+      return { months: monthsData };
     }
 
     // Rebuild the editor from a saved bundle (reusing the month/date templates).
@@ -337,13 +335,6 @@
           months.appendChild(el);
         });
         fillAllWeekdays(months);
-      }
-      if (data && data.participants) {
-        document.querySelectorAll(".participant").forEach(function (p) {
-          var name = p.querySelector(".participant__month").textContent.trim();
-          var input = p.querySelector(".participant__count");
-          if (name in data.participants) input.value = data.participants[name];
-        });
       }
     }
 
